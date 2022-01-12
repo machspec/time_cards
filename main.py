@@ -4,24 +4,26 @@ def main():
 
     app = time_trav.App()
 
-    labels = [
+    card_quantities: tuple = (
         "Total Parts",
         "Parts Per Bucket",
+    )
+
+    card_details: tuple = (
         "Job",
         "PRO Date",
         "ExpVel",
         "Part#",
         "Name",
-        "BktQty",
         "JobQty",
         "BktHrs",
-    ]
+    )
 
-    layout: time_trav.Layout = time_trav.Layout(app)
-    layout.add_similar_widgets(labels, tk.Entry)
-    layout.build_layout()
+    card_detail_entries = time_trav.LabeledWidgetGroup(app)
+    card_detail_entries.add_similar_widgets(card_details, tk.Entry)
+    card_detail_entries.build_frame()
 
-    layout.pack()
+    card_detail_entries.pack()
 
     app.mainloop()
 

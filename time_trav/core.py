@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 
-from typing import Optional
+from abc import ABC, abstractmethod
 
 
 class App(tk.Tk):
@@ -13,9 +13,6 @@ class App(tk.Tk):
 
         self.title("Time Traveler")
         self.geometry("480x240")
-
-    def build_layout(self, layout: Layout):
-        layout.pack()
 
 
 class CardData:
@@ -36,24 +33,52 @@ class CardData:
         return self.ops
 
 
-class Layout(tk.Frame):
-    """Base layout class."""
+class WidgetGroup(ABC, tk.Frame):
+    """Group of related widgets."""
+
+    @abstractmethod
+    def add_similar_widgets(self, labels: tuple[str], widget_class: object):
+        ...
+
+    @abstractmethod
+    def add_widgets(self, widgets: dict[str, tk.Widget]):
+        ...
+
+    @abstractmethod
+    def build_frame(self):
+        ...
+
+
+class LabeledWidgetGroup(WidgetGroup):
+    """Frame with rows consisting of a label followed by a widget."""
 
     def __init__(self, root: tk.Tk):
         super().__init__(master=root)
 
         self.widgets: dict[str, tk.Widget] = dict()
 
-    def build_layout(self):
-        for index, (label, widget) in enumerate(self.widgets.items()):
+    def add_similar_widgets(self, labels: tuple[str], widget_class: object, **params):
+        """Add several widgets of the same type to the collection.
 
-            tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
-            widget.grid(row=index, column=1)
-
-    def add_widgets(self, widgets: dict[str, tk.Widget]):
-        for label, widget in widgets.items():
-            self.widgets[label] = widget(self)
-
-    def add_similar_widgets(self, labels: list, widget_class: object, **params):
+        parameters:
+            labels <tuple>: labels for each widget
+            widget_class <object>: type of all widgets to be added
+        """
         for label in labels:
             self.widgets[label] = widget_class(self, **params)
+
+    def add_widgets(self, widgets: dict[str, tk.Widget], **params):
+        """Add several widgets to the collection.
+
+        parameters:
+            widgets <dict>: dictionary {label_text: widget_type}
+            params: optional parameters passed to all widgets
+        """
+        for label, widget in widgets.items():
+            self.widgets[label] = widget(self, **params)
+
+    def build_frame(self):
+        """Compile all widgets and attach to self with labels."""
+        for index, (label, widget) in enumerate(self.widgets.items()):
+            tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
+            widget.grid(row=index, column=1)
