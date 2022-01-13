@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 
 
 class App(tk.Tk):
@@ -13,24 +13,6 @@ class App(tk.Tk):
 
         self.title("Time Traveler")
         self.geometry("480x265")
-
-
-class CardData:
-    bkt_hrs: str
-    bkt_qty: str
-    exp_vel: str
-    job_num: str
-    job_qty: str
-    part_name: str
-    part_num: str
-    pro_date: str
-    ops: list[str] = None
-
-    def set_ops(self, data: list) -> None:
-        self.ops = data
-
-    def get_ops(self) -> list:
-        return self.ops
 
 
 class WidgetGroup(ABC, tk.Frame):
@@ -79,9 +61,14 @@ class LabeledWidgetGroup(WidgetGroup):
             self.widgets[label] = widget(self, **params)
 
     def build_frame(self):
-        """Compile all widgets and attach to self with labels."""
+        """Grid-attach all widgets and labels."""
 
         self.grid_columnconfigure(0, weight=1)
         for index, (label, widget) in enumerate(self.widgets.items()):
             tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
             widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
+
+
+def get_group_values(group: WidgetGroup) -> dict[str, str]:
+    """Return dictionary of values from WidgetGroup."""
+    return {label: value.get() for label, value in group.widgets.items()}
