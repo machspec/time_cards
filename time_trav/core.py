@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 
 class App(tk.Tk):
