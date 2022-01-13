@@ -1,3 +1,6 @@
+"""Entry point for program."""
+
+
 def main():
     import time_trav
     import tkinter as tk

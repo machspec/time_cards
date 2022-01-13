@@ -1,4 +1,4 @@
-"""Main Application Window"""
+"""Core classes for program."""
 
 from __future__ import annotations
 
