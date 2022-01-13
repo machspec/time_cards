@@ -12,7 +12,7 @@ class App(tk.Tk):
         super().__init__()
 
         self.title("Time Traveler")
-        self.geometry("480x240")
+        self.geometry("480x265")
 
 
 class CardData:
@@ -52,8 +52,8 @@ class WidgetGroup(ABC, tk.Frame):
 class LabeledWidgetGroup(WidgetGroup):
     """Frame with rows consisting of a label followed by a widget."""
 
-    def __init__(self, root: tk.Tk):
-        super().__init__(master=root)
+    def __init__(self, root: tk.Tk, **params):
+        super().__init__(master=root, **params)
 
         self.widgets: dict[str, tk.Widget] = dict()
 
@@ -63,6 +63,7 @@ class LabeledWidgetGroup(WidgetGroup):
         parameters:
             labels <tuple>: labels for each widget
             widget_class <object>: type of all widgets to be added
+            params: optional parameters passed to all widgets
         """
         for label in labels:
             self.widgets[label] = widget_class(self, **params)
@@ -79,6 +80,8 @@ class LabeledWidgetGroup(WidgetGroup):
 
     def build_frame(self):
         """Compile all widgets and attach to self with labels."""
+
+        self.grid_columnconfigure(0, weight=1)
         for index, (label, widget) in enumerate(self.widgets.items()):
             tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
-            widget.grid(row=index, column=1)
+            widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)

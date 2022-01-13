@@ -19,11 +19,16 @@ def main():
         "BktHrs",
     )
 
-    card_detail_entries = time_trav.LabeledWidgetGroup(app)
+    card_quantity_entries = time_trav.LabeledWidgetGroup(app, bd=1, relief=tk.SUNKEN)
+    card_quantity_entries.add_similar_widgets(card_quantities, tk.Entry)
+    card_quantity_entries.build_frame()
+
+    card_detail_entries = time_trav.LabeledWidgetGroup(app, bd=1, relief=tk.SUNKEN)
     card_detail_entries.add_similar_widgets(card_details, tk.Entry)
     card_detail_entries.build_frame()
 
-    card_detail_entries.pack()
+    card_quantity_entries.grid(sticky=tk.EW)
+    card_detail_entries.grid(sticky=tk.EW)
 
     app.mainloop()
 
