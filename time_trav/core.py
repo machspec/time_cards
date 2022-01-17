@@ -1,82 +1,76 @@
-"""Core classes for program."""
+"""Program-specific classes and functions."""
 
-from __future__ import annotations
-
-import tkinter as tk
-
-from abc import ABC, abstractmethod
-from typing import Any
+from dataclasses import dataclass
+from enum import Enum, auto
+from time_trav.constants import FORM_TRANSLATIONS
 
 
-class App(tk.Tk):
-    data: dict[int, Any] = dict()
+@dataclass
+class CardData:
+    """Base class that holds program output."""
 
-    def __init__(self):
-        super().__init__()
+    bkt_hrs: str
+    bkt_qty: str
+    exp_vel: str
+    job_num: str
+    job_qty: str
+    part_name: str
+    part_num: str
+    part_qty: str
+    pro_date: str
+    ops: list[str] = None
 
-        self.title("Time Traveler")
-        self.geometry("480x265")
+    @property
+    def card_count(self) -> str:
+        return f"{self.job_qty // self.bkt_qty}"
 
-    def add_data(self, data: Any):
-        """Add data to the program."""
-        self.data[len(self.data)] = data
-        print(self.data)
+    @property
+    def remainder_parts(self) -> str:
+        return f"{self.job_qty % self.bkt_qty}"
 
+    def add_ops(self, data: list) -> None:
+        """Append a new operation to the existing list.
 
-class WidgetGroup(ABC, tk.Frame):
-    """Group of related widgets."""
-
-    @abstractmethod
-    def add_similar_widgets(self, labels: tuple[str], widget_class: object):
-        ...
-
-    @abstractmethod
-    def add_widgets(self, widgets: dict[str, tk.Widget]):
-        ...
-
-    @abstractmethod
-    def build_frame(self):
-        ...
-
-
-class LabeledWidgetGroup(WidgetGroup):
-    """Frame with rows consisting of a label followed by a widget."""
-
-    def __init__(self, root: tk.Tk, **params):
-        super().__init__(master=root, **params)
-
-        self.widgets: dict[str, tk.Widget] = dict()
-
-    def add_similar_widgets(self, labels: tuple[str], widget_class: object, **params):
-        """Add several widgets of the same type to the collection.
-
-        parameters:
-            labels <tuple>: labels for each widget
-            widget_class <object>: type of all widgets to be added
-            params: optional parameters passed to all widgets
+        Instantiates a list if self.ops does not exist.
         """
-        for label in labels:
-            self.widgets[label] = widget_class(self, **params)
+        if self.ops is None:
+            self.ops = []
 
-    def add_widgets(self, widgets: dict[str, tk.Widget], **params):
-        """Add several widgets to the collection.
+        self.ops.append(data)
 
-        parameters:
-            widgets <dict>: dictionary {label_text: widget_type}
-            params: optional parameters passed to all widgets
+    def set_ops(self, data: list) -> None:
+        """Set self.ops equal to a list of operations.
+
+        Instantiates a list if self.ops does not exist.
         """
-        for label, widget in widgets.items():
-            self.widgets[label] = widget(self, **params)
+        if self.ops is None:
+            self.ops = []
 
-    def build_frame(self):
-        """Grid-attach all widgets and labels."""
+        self.ops = data
 
-        self.grid_columnconfigure(0, weight=1)
-        for index, (label, widget) in enumerate(self.widgets.items()):
-            tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
-            widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
+    def get_ops(self) -> list:
+        return self.ops
 
 
-def get_group_values(group: WidgetGroup) -> dict[str, str]:
-    """Return dictionary of values from WidgetGroup."""
-    return {label: value.get() for label, value in group.widgets.items()}
+# TODO: Add operations.
+class Operation(Enum):
+    """Operations that can be listed on a time card."""
+
+    FINISH: auto()
+
+
+def create_card_data(quantities: dict[str, str], details: dict[str, str]) -> CardData:
+    """Create a new CardData object from form values."""
+
+    def get_form_translation(label: str) -> str:
+        """Get variable name from FORM_TRANSLATIONS constant, given label text."""
+        return FORM_TRANSLATIONS[label]
+
+    def translate_dict_keys(d: dict[str, str]) -> dict:
+        """Return a dict with translated keys per FORM_TRANSLATIONS constant."""
+        return {get_form_translation(lbl): v for lbl, v in d.items()}
+
+    qtys: dict = translate_dict_keys(quantities)
+    dtls: dict = translate_dict_keys(details)
+
+    return CardData(**qtys, **dtls)
