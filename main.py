@@ -1,8 +1,5 @@
 """Entry point for program."""
 
-from dataclasses import dataclass
-from enum import Enum, auto
-
 import time_trav
 import tkinter as tk
 
