@@ -7,3 +7,5 @@ This program provides data entry forms and automatic formatting for printing out
 
 ### Reference Template:
 ![Reference Template](../media/card_template.png)
+
+*Cards are 4"x3", right section of pictured template goes on the back.*
