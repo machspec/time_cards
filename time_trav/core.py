@@ -5,14 +5,22 @@ from __future__ import annotations
 import tkinter as tk
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class App(tk.Tk):
+    data: dict[int, Any] = dict()
+
     def __init__(self):
         super().__init__()
 
         self.title("Time Traveler")
         self.geometry("480x265")
+
+    def add_data(self, data: Any):
+        """Add data to the program."""
+        self.data[len(self.data)] = data
+        print(self.data)
 
 
 class WidgetGroup(ABC, tk.Frame):
