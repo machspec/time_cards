@@ -1,7 +1,4 @@
-"""Entry point for program.
-
-Contains program-specific classes
-"""
+"""Entry point for program."""
 
 from dataclasses import dataclass
 from enum import Enum, auto
