@@ -8,33 +8,6 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class App(tk.Tk):
-    """Main Application."""
-
-    data: dict[int, list[Any]] = dict()
-
-    def __init__(self):
-        super().__init__()
-
-        self.title("Time Traveler")
-        self.geometry("480x265")
-
-    def add_data(self, key: str, item: Any):
-        """Add data to the program.
-
-        Instantiates a list if self.data[key] does not exist.
-
-        Parameters:
-            key <str>: key to which data will be added
-            item <Any>: item to be added to value of (key)
-        """
-        if not self.data.get(key) or self.data[key] is None:
-            self.data[key] = []
-
-        self.data[key].append(item)
-        print(self.data)
-
-
 class WidgetGroup(ABC, tk.Frame):
     """Group of related widgets."""
 

@@ -2,7 +2,37 @@
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from time_trav.constants import FORM_TRANSLATIONS
+from app.constants import FORM_TRANSLATIONS
+from typing import Any
+
+import tkinter as tk
+
+
+class App(tk.Tk):
+    """Main Application."""
+
+    data: dict[int, list[Any]] = dict()
+
+    def __init__(self):
+        super().__init__()
+
+        self.title("Time Traveler")
+        self.geometry("480x265")
+
+    def add_data(self, key: str, item: Any):
+        """Add data to the program.
+
+        Instantiates a list if self.data[key] does not exist.
+
+        Parameters:
+            key <str>: key to which data will be added
+            item <Any>: item to be added to value of (key)
+        """
+        if not self.data.get(key) or self.data[key] is None:
+            self.data[key] = []
+
+        self.data[key].append(item)
+        print(self.data)
 
 
 @dataclass
@@ -61,16 +91,17 @@ class Operation(Enum):
 
 def create_card_data(quantities: dict[str, str], details: dict[str, str]) -> CardData:
     """Create a new CardData object from form values."""
-
-    def get_form_translation(label: str) -> str:
-        """Get variable name from FORM_TRANSLATIONS constant, given label text."""
-        return FORM_TRANSLATIONS[label]
-
-    def translate_dict_keys(d: dict[str, str]) -> dict:
-        """Return a dict with translated keys per FORM_TRANSLATIONS constant."""
-        return {get_form_translation(lbl): v for lbl, v in d.items()}
-
     qtys: dict = translate_dict_keys(quantities)
     dtls: dict = translate_dict_keys(details)
 
     return CardData(**qtys, **dtls)
+
+
+def get_form_translation(label: str) -> str:
+    """Get variable name from FORM_TRANSLATIONS constant, given label text."""
+    return FORM_TRANSLATIONS[label]
+
+
+def translate_dict_keys(d: dict[str, str]) -> dict:
+    """Return a dict with translated keys per FORM_TRANSLATIONS constant."""
+    return {get_form_translation(lbl): v for lbl, v in d.items()}
