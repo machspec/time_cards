@@ -1,4 +1,4 @@
-# MSI Time Traveler
+# MSI Time Cards
 
 This program provides data entry forms and automatic formatting for printing out "time cards."
 
