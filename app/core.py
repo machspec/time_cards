@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from app.constants import FORM_TRANSLATIONS
+from app import constants
 from typing import Any
 
 import tkinter as tk
@@ -52,7 +52,7 @@ class Card:
     job_qty: str
     part_name: str
 
-    ops: list[Operation]
+    ops: list[constants.Operation]
 
     def build_image(self):
         """Place the text values on the image."""
@@ -110,13 +110,6 @@ class CardData:
         return self.ops
 
 
-# TODO: Add operations.
-class Operation(Enum):
-    """Operations that can be listed on a time card."""
-
-    FINISH: auto()
-
-
 def create_card_data(quantities: dict[str, str], details: dict[str, str]) -> CardData:
     """Create a new CardData object from form values."""
     qtys: dict = translate_dict_keys(quantities)
@@ -150,10 +143,10 @@ def create_cards(card_data: CardData) -> list[Card]:
 
 
 def get_form_translation(label: str) -> str:
-    """Get variable name from FORM_TRANSLATIONS constant, given label text."""
-    return FORM_TRANSLATIONS[label]
+    """Get variable name from constants.FORM_TRANSLATIONS constant, given label text."""
+    return constants.FORM_TRANSLATIONS[label]
 
 
 def translate_dict_keys(d: dict[str, str]) -> dict:
-    """Return a dict with translated keys per FORM_TRANSLATIONS constant."""
+    """Return a dict with translated keys per constants.FORM_TRANSLATIONS constant."""
     return {get_form_translation(lbl): v for lbl, v in d.items()}

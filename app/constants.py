@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from tkinter import SUNKEN
 
 
@@ -34,3 +35,9 @@ FORM_TRANSLATIONS: dict = {
     "PRO Date": "pro_date",
     "Total Parts": "part_qty",
 }
+
+# TODO: Add operations.
+class Operation(Enum):
+    """Operations that can be listed on a time card."""
+
+    FINISH: auto()
