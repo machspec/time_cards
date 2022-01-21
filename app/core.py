@@ -7,6 +7,7 @@ from app import constants
 from typing import Any
 
 import tkinter as tk
+from PIL import Image, ImageFont, ImageDraw
 
 
 class App(tk.Tk):
@@ -43,6 +44,8 @@ class Card:
 
     card_num: str
     card_count: str
+    # cope
+    image: Image
 
     bkt_hrs: str
     bkt_qty: str
@@ -55,7 +58,59 @@ class Card:
 
     def build_image(self):
         """Place the text values on the image."""
-        ...
+
+        def appendText(img, text, x, y):
+            draw = ImageDraw.Draw(img)
+            draw.text((x, y), text, constants.FONT_COLOR, constants.FONT)
+
+            def setMaOps(img, ops):
+                x = 5
+                y = 92
+                for index, item in enumerate(ops):
+                    appendText(img, item, x, y)
+                    if index in {5, 11, 17}:
+                        x += 117  # whatever
+                        y = 92
+                    else:
+                        y += 21  # :(
+
+                    if index == 23:
+                        return
+
+            card = Image.open("resources/card.png")
+            export = card.copy()
+
+            x = 64
+            y = 7
+            appendText(export, self.job_num, x, y)
+            y = 30
+            appendText(export, self.part_num, x, y)
+            y = 50
+            appendText(export, self.bkt_qty, x, y)
+
+            x = 272
+            y = 7
+            appendText(export, self.pro_date, x, y)
+
+            x = 250
+            y = 30
+            appendText(export, self.part_name, x, y)
+
+            x = 255
+            y = 50
+            appendText(export, self.job_qty, x, y)
+
+            x = 370
+            y = 50
+            appendText(export, self.bkt_hrs, x, y)
+
+            x = 410
+            y = 7
+            appendText(export, self.exp_vel, x, y)
+
+            # setMaOps(export, ("wasdf" * 6))
+
+            export.show()
 
     def get_image(self):
         """Return the Card image."""
@@ -141,7 +196,6 @@ def create_cards(card_data: CardData) -> list[Card]:
         card_count will give you the max number of cards, and remainder will
         give you the number of parts left over.
     """
-    ...
 
 
 def get_form_translation(label: str) -> str:

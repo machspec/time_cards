@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from tkinter import SUNKEN
-
+from PIL import ImageFont
 
 # background color of elements
 BACKGROUND_COLOR: str = "#333333"
@@ -27,6 +27,10 @@ CARD_DETAIL_FIELDS: tuple = (
     "JobQty",
     "BktHrs",
 )
+
+# only works on windows
+FONT = ImageFont.truetype("CascadiaMono.ttf", 12, encoding="unic")
+FONT_COLOR = (0, 0, 0)
 
 # foreground (text) color of elements
 FOREGROUND_COLOR: str = "#eeeeee"
