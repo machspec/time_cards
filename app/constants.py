@@ -2,10 +2,15 @@ from enum import Enum, auto
 from tkinter import SUNKEN
 
 
+# background color of elements
+BACKGROUND_COLOR: str = "#333333"
+BACKGROUND_COLOR_ENTRY: str = "#555555"
+
 # visual style applied to widget groups
 BOX_STYLE: dict = {
     "bd": 1,
     "relief": SUNKEN,
+    "bg": "#333333",
 }
 
 CARD_QUANTITY_FIELDS: tuple = (
@@ -22,6 +27,9 @@ CARD_DETAIL_FIELDS: tuple = (
     "JobQty",
     "BktHrs",
 )
+
+# foreground (text) color of elements
+FOREGROUND_COLOR: str = "#eeeeee"
 
 # dict that describes how form labels are stored as variables
 FORM_TRANSLATIONS: dict = {

@@ -4,8 +4,19 @@ import app
 import tkinter as tk
 
 
+ENTRY_STYLE: dict = {
+    "bg": app.constants.BACKGROUND_COLOR_ENTRY,
+    "fg": app.constants.FOREGROUND_COLOR,
+}
+LABEL_STYLE: dict = {
+    "bg": app.constants.BACKGROUND_COLOR,
+    "fg": app.constants.FOREGROUND_COLOR,
+}
+
+
 def main():
-    root = app.core.App()
+    root = app.core.App("Time Card Generator", (554, 265))
+    root.configure(bg=app.constants.BACKGROUND_COLOR)
 
     # define GUI elements
 
@@ -14,16 +25,21 @@ def main():
         root, **app.constants.BOX_STYLE
     )
     card_quantity_entries.add_similar_widgets(
-        app.constants.CARD_QUANTITY_FIELDS, tk.Entry
+        app.constants.CARD_QUANTITY_FIELDS, tk.Entry, **ENTRY_STYLE
     )
-    card_quantity_entries.build_frame()
+    card_quantity_entries.build_frame(**LABEL_STYLE)
 
     # fields that tell the program the details each card should display
     card_detail_entries = app.helpers.LabeledWidgetGroup(
         root, **app.constants.BOX_STYLE
     )
-    card_detail_entries.add_similar_widgets(app.constants.CARD_DETAIL_FIELDS, tk.Entry)
-    card_detail_entries.build_frame()
+    card_detail_entries.add_similar_widgets(
+        app.constants.CARD_DETAIL_FIELDS,
+        tk.Entry,
+        bg=app.constants.BACKGROUND_COLOR_ENTRY,
+        fg=app.constants.FOREGROUND_COLOR,
+    )
+    card_detail_entries.build_frame(**LABEL_STYLE)
 
     # button that sends form values to app.data
     btn_get_values = tk.Button(root, text="Get Values")
@@ -38,10 +54,20 @@ def main():
         ),
     )
 
+    # entry for operations
+    frame_op_entry = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
+    lbl_ops_instructions = tk.Label(
+        frame_op_entry, text="Enter operations separated by commas.", **LABEL_STYLE
+    )
+    entry_ops = tk.Text(frame_op_entry, width=40, height=11, **ENTRY_STYLE)
+    lbl_ops_instructions.grid()
+    entry_ops.grid()
+
     # draw GUI elements to the window
     card_quantity_entries.grid(sticky=tk.EW)
     card_detail_entries.grid(sticky=tk.EW)
     btn_get_values.grid(row=0, column=1)
+    frame_op_entry.grid(row=1, column=1)
 
     root.mainloop()
 

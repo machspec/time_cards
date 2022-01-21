@@ -14,11 +14,11 @@ class App(tk.Tk):
 
     data: dict[int, list[Any]] = dict()
 
-    def __init__(self):
+    def __init__(self, title: str, size: tuple):
         super().__init__()
 
-        self.title("Time Traveler")
-        self.geometry("480x265")
+        self.title(title)
+        self.geometry(f"{size[0]}x{size[1]}")
 
     def add_data(self, key: str, item: Any):
         """Add data to the program.

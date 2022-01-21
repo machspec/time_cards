@@ -40,6 +40,7 @@ class LabeledWidgetGroup(WidgetGroup):
             widget_class <object>: type of all widgets to be added
             params: optional parameters passed to all widgets
         """
+
         for label in labels:
             self.widgets[label] = widget_class(self, **params)
 
@@ -53,12 +54,17 @@ class LabeledWidgetGroup(WidgetGroup):
         for label, widget in widgets.items():
             self.widgets[label] = widget(self, **params)
 
-    def build_frame(self):
-        """Grid-attach all widgets and labels."""
+    def build_frame(self, **kwargs):
+        """Grid-attach all widgets and labels.
+
+        Optional keyword arguments assigned to labels.
+        """
 
         self.grid_columnconfigure(0, weight=1)
         for index, (label, widget) in enumerate(self.widgets.items()):
-            tk.Label(self, text=f"{label}:").grid(row=index, column=0, sticky=tk.E)
+            tk.Label(self, text=f"{label}:", **kwargs).grid(
+                row=index, column=0, sticky=tk.E
+            )
             widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
 
 
