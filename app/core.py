@@ -109,12 +109,15 @@ class CardData:
         return self.ops
 
 
-def create_card_data(quantities: dict[str, str], details: dict[str, str]) -> CardData:
+def create_card_data(
+    quantities: dict[str, str], details: dict[str, str], ops: str
+) -> CardData:
     """Create a new CardData object from form values."""
     qtys: dict = translate_dict_keys(quantities)
     dtls: dict = translate_dict_keys(details)
+    ops: list = [i.strip().upper() for i in ops.split(",")]
 
-    return CardData(**qtys, **dtls)
+    return CardData(**qtys, **dtls, ops=ops)
 
 
 # TODO: Owen
