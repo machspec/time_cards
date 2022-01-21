@@ -53,7 +53,7 @@ class LabeledWidgetGroup(WidgetGroup):
         for label, widget in widgets.items():
             self.widgets[label] = widget(self, **params)
 
-    def build_frame(self, **kwargs):
+    def build_frame(self, **lbl_params):
         """Grid-attach all widgets and labels.
 
         Optional keyword arguments assigned to labels.
@@ -61,7 +61,7 @@ class LabeledWidgetGroup(WidgetGroup):
 
         self.grid_columnconfigure(0, weight=1)
         for index, (label, widget) in enumerate(self.widgets.items()):
-            tk.Label(self, text=f"{label}:", **kwargs).grid(
+            tk.Label(self, text=f"{label}:", **lbl_params).grid(
                 row=index, column=0, sticky=tk.E
             )
             widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
