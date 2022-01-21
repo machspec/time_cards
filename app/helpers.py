@@ -5,7 +5,6 @@ from __future__ import annotations
 import tkinter as tk
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class WidgetGroup(ABC, tk.Frame):
