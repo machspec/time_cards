@@ -37,7 +37,6 @@ class App(tk.Tk):
         self.data[key].append(item)
 
 
-# TODO: Owen
 @dataclass
 class Card:
     """Contains information for a single card."""
@@ -58,11 +57,20 @@ class Card:
     back_image: Image = None
     front_image: Image = None
 
-    def build_image(self):
+    # TODO: Jacob
+    def build_back_image(self):
         """Put the image together."""
-        # card = Image.open("./app/resources/card.png")
-        card_front = Image.open("./app/resources/card_front.jpg")
         card_back = Image.open("./app/resources/card_back.jpg")
+
+        back_output = card_back.copy()
+
+        # place text on back image
+
+        self.back_image = back_output
+
+    def build_front_image(self):
+        """Put the image together."""
+        card_front = Image.open("./app/resources/card_front.jpg")
 
         front_output = card_front.copy()
 
@@ -84,19 +92,13 @@ class Card:
         self.place_text(front_output, self.job_qty, (425, 78))
         self.place_text(front_output, self.bkt_hrs, (613, 78))
 
-        # self.place_text(front_output, self.job_num, (64, 7))
-        # self.place_text(front_output, self.part_num, (64, 30))
-        # self.place_text(front_output, self.bkt_qty, (64, 52))
-        # self.place_text(front_output, self.pro_date, (273, 7))
-        # self.place_text(front_output, self.part_name, (250, 30))
-        # self.place_text(front_output, self.job_qty, (255, 52))
-        # self.place_text(front_output, self.bkt_hrs, (370, 52))
-        # self.place_text(front_output, self.exp_vel, (409, 7))
-
         self.place_operations_text(front_output, self.ops)
 
         self.front_image = front_output
-        # self.front_image.show()  # test
+
+    def build_image(self):
+        self.build_front_image()
+        self.build_back_image()
 
     def place_operations_text(self, img: Image, ops: list):
         """Place operation names on the image."""
@@ -107,7 +109,6 @@ class Card:
 
         x = initial_x
         y = initial_y
-
         for index, item in enumerate(ops):
             self.place_text(img, item, (x, y))
 
@@ -188,27 +189,8 @@ class CardData:
         return self.ops
 
 
-# TODO: Owen
 def create_cards(card_data_list: CardData) -> list[Card]:
-    """Takes information from a CardData object and returns a list of Cards.
-
-    Notes:
-        CardData.part_qty is Total Parts.
-        CardData.bkt_qty is Parts Per Bucket.
-
-        Essentially, you're taking the information and repeating it, but
-        the card number (top right) will change for each card in the set.
-
-        bkt_qty will only change on the last card, and that's if there are
-        parts left over from all the others. For example, say there are 101
-        parts in total. Each bucket contains no more than 25 parts. This means
-        that you'll have six cards. Five with a bkt_qty of 25 and one with a
-        bkt_qty of 1.
-
-        CardData has a couple of functions that should help you out here.
-        card_count will give you the max number of cards, and remainder will
-        give you the number of parts left over.
-    """
+    """Takes information from a CardData object and returns a list of Cards."""
     card_list = []
 
     for card_data in card_data_list:
@@ -236,21 +218,34 @@ def create_cards(card_data_list: CardData) -> list[Card]:
             card_list.append(card)
             card_index += 1
 
-        print(card_list)
-    cardBlock = Image.new("RGB", (774 * 2, 463 * 3), "white")
-    x = 0
-    y = 0
+    front_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
+    back_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
+
+    initial_x = 0
+    initial_y = 0
+    offset_x = 774
+    offset_y = 463
+
+    x = initial_x
+    y = initial_y
     for i, card in enumerate(card_list):
         card.build_image()
+
         if i == 0 or not i % 2:
             x = 0
-            cardBlock.paste(card.front_image, (x, y))
+            front_card_block.paste(card.front_image, (x, y))
+            back_card_block.paste(card.back_image, (x, y))
+
         else:
-            x = 774
-            cardBlock.paste(card.front_image, (x, y))
-            y += 463
-    cardBlock.show()
-    # card.front_image.show()
+            x += offset_x
+
+            front_card_block.paste(card.front_image, (x, y))
+            back_card_block.paste(card.back_image, (x, y))
+
+            y += offset_y
+
+    front_card_block.show()
+    back_card_block.show()
 
 
 def create_card_data(
