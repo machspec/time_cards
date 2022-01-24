@@ -110,11 +110,12 @@ class Card:
 
             # setMaOps(export, ("wasdf" * 6))
 
-            export.show()
+            self.image = export
+            self.get_image()
 
     def get_image(self):
         """Return the Card image."""
-        ...
+        self.image.show()
 
 
 @dataclass
@@ -196,6 +197,22 @@ def create_cards(card_data: CardData) -> list[Card]:
         card_count will give you the max number of cards, and remainder will
         give you the number of parts left over.
     """
+    cardList = []
+    for i in range(0, card_data.part_qty, card_data.bkt_qty):
+        cardList.append(
+            Card(
+                card_num=i % card_data.bkt_qty,
+                card_count=card_data.card_count(),
+                bkt_hrs=card_data.bkt_hrs,
+                bkt_qty=card_data.bkt_qty,
+                exp_vel=card_data.exp_vel,
+                job_num=card_data.job_num,
+                job_qty=card_data.job_qty,
+                part_name=card_data.part_name,
+            )
+        )
+    print(cardList)
+    return cardList
 
 
 def get_form_translation(label: str) -> str:
