@@ -91,7 +91,7 @@ class Card:
         self.place_operations_text(front_output, self.ops)
 
         self.front_image = front_output
-        self.front_image.show()  # test
+        # self.front_image.show()  # test
 
     def place_operations_text(self, img: Image, ops: list):
         """Place operation names on the image."""
@@ -230,9 +230,20 @@ def create_cards(card_data_list: CardData) -> list[Card]:
             card_index += 1
 
         print(card_list)
-
-    for card in card_list:
+    cardBlock = Image.new("RGB", (774 * 2, 463 * 3), "white")
+    x = 0
+    y = 0
+    for i, card in enumerate(card_list):
         card.build_image()
+        if i == 0 or not i % 2:
+            x = 0
+            cardBlock.paste(card.front_image, (x, y))
+        else:
+            x = 774
+            cardBlock.paste(card.front_image, (x, y))
+            y += 463
+    cardBlock.show()
+    # card.front_image.show()
 
 
 def create_card_data(
