@@ -29,8 +29,11 @@ CARD_DETAIL_FIELDS: tuple = (
 )
 
 # only works on windows
-FONT = ImageFont.truetype("CascadiaMono.ttf", 22, encoding="unic")
+FONT = ImageFont.truetype("./app/resources/RobotoMono-Regular.ttf", 22, encoding="unic")
 FONT_COLOR = (0, 0, 0)
+FONT_SMALL = ImageFont.truetype(
+    "./app/resources/RobotoMono-Regular.ttf", 15, encoding="unic"
+)
 
 # foreground (text) color of elements
 FOREGROUND_COLOR: str = "#eeeeee"
