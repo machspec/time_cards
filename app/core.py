@@ -8,7 +8,7 @@ from app import constants
 from typing import Any
 
 import tkinter as tk
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 
 class App(tk.Tk):
@@ -67,17 +67,22 @@ class Card:
         front_output = card_front.copy()
 
         # place text on front image
-        self.place_text(front_output, self.job_num, (55, 7))
-        self.place_text(front_output, self.pro_date, (448, 7))
-        self.place_text(front_output, self.exp_vel, (676, 7))
-        self.place_text(front_output, f"{self.card_num}/{self.card_count}", (720, 7))
+        self.place_text(front_output, self.job_num, (55, 5))
+        self.place_text(front_output, self.pro_date, (448, 5))
+        self.place_text(front_output, self.exp_vel, (676, 5))
+        self.place_text(
+            front_output,
+            f"{self.card_num}/{self.card_count}",
+            (720, 9),
+            constants.FONT_SMALL,
+        )
 
-        self.place_text(front_output, self.part_num, (82, 44))
-        self.place_text(front_output, self.part_name, (412, 44))
+        self.place_text(front_output, self.part_num, (82, 42))
+        self.place_text(front_output, self.part_name, (412, 42))
 
-        self.place_text(front_output, self.bkt_qty, (92, 80))
-        self.place_text(front_output, self.job_qty, (425, 80))
-        self.place_text(front_output, self.bkt_hrs, (613, 80))
+        self.place_text(front_output, self.bkt_qty, (92, 78))
+        self.place_text(front_output, self.job_qty, (425, 78))
+        self.place_text(front_output, self.bkt_hrs, (613, 78))
 
         # self.place_text(front_output, self.job_num, (64, 7))
         # self.place_text(front_output, self.part_num, (64, 30))
@@ -96,7 +101,7 @@ class Card:
     def place_operations_text(self, img: Image, ops: list):
         """Place operation names on the image."""
         initial_x = 8
-        initial_y = 150
+        initial_y = 145
         offset_x = 196
         offset_y = 34
 
@@ -116,13 +121,15 @@ class Card:
             if index == 23:
                 return
 
-    def place_text(self, img: Image, text: str, coords: tuple):
+    def place_text(
+        self, img: Image, text: str, coords: tuple, font: ImageFont = constants.FONT
+    ):
         """Place card text on the image."""
         if not isinstance(text, str):
             text = f"{text}"
 
         draw = ImageDraw.Draw(img)
-        draw.text(coords, text, constants.FONT_COLOR, constants.FONT)
+        draw.text(coords, text, constants.FONT_COLOR, font)
 
     def set_ops(self, ops: list):
         """Set self.ops equal to a list of operations."""
