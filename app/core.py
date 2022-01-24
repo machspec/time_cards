@@ -34,7 +34,6 @@ class App(tk.Tk):
             self.data[key] = []
 
         self.data[key].append(item)
-        print(self.data)
 
 
 # TODO: Owen
@@ -53,35 +52,52 @@ class Card:
     job_qty: str
     bkt_hrs: str
     exp_vel: str
+    ops: list[constants.Operation]
 
-    image: Image = None
-    ops: list[constants.Operation] = None
+    back_image: Image = None
+    front_image: Image = None
 
     def build_image(self):
         """Put the image together."""
-        card = Image.open("./app/resources/card.png")
-        export = card.copy()
+        # card = Image.open("./app/resources/card.png")
+        card_front = Image.open("./app/resources/card_front.jpg")
+        card_back = Image.open("./app/resources/card_back.jpg")
 
-        self.place_text(export, self.job_num, (64, 7))
-        self.place_text(export, self.part_num, (64, 30))
-        self.place_text(export, self.bkt_qty, (64, 50))
-        self.place_text(export, self.pro_date, (272, 7))
-        self.place_text(export, self.part_name, (250, 30))
-        self.place_text(export, self.job_qty, (255, 50))
-        self.place_text(export, self.bkt_hrs, (370, 50))
-        self.place_text(export, self.exp_vel, (410, 7))
+        front_output = card_front.copy()
 
-        self.place_operations_text(export, self.ops)
+        # place text on front image
+        self.place_text(front_output, self.job_num, (55, 7))
+        self.place_text(front_output, self.pro_date, (448, 7))
+        self.place_text(front_output, self.exp_vel, (676, 7))
+        self.place_text(front_output, f"{self.card_num}/{self.card_count}", (720, 7))
 
-        self.image = export
-        self.get_image()  # test
+        self.place_text(front_output, self.part_num, (82, 44))
+        self.place_text(front_output, self.part_name, (412, 44))
+
+        self.place_text(front_output, self.bkt_qty, (92, 80))
+        self.place_text(front_output, self.job_qty, (425, 80))
+        self.place_text(front_output, self.bkt_hrs, (613, 80))
+
+        # self.place_text(front_output, self.job_num, (64, 7))
+        # self.place_text(front_output, self.part_num, (64, 30))
+        # self.place_text(front_output, self.bkt_qty, (64, 52))
+        # self.place_text(front_output, self.pro_date, (273, 7))
+        # self.place_text(front_output, self.part_name, (250, 30))
+        # self.place_text(front_output, self.job_qty, (255, 52))
+        # self.place_text(front_output, self.bkt_hrs, (370, 52))
+        # self.place_text(front_output, self.exp_vel, (409, 7))
+
+        self.place_operations_text(front_output, self.ops)
+
+        self.front_image = front_output
+        self.front_image.show()  # test
 
     def place_operations_text(self, img: Image, ops: list):
         """Place operation names on the image."""
-        initial_x = 5
-        initial_y = 92
-        offset_x = 117
-        offset_y = 21
+        initial_x = 8
+        initial_y = 150
+        offset_x = 196
+        offset_y = 34
 
         x = initial_x
         y = initial_y
@@ -107,15 +123,8 @@ class Card:
         draw = ImageDraw.Draw(img)
         draw.text(coords, text, constants.FONT_COLOR, constants.FONT)
 
-    def get_image(self):
-        """Return the Card image."""
-        self.image.show()
-
     def set_ops(self, ops: list):
         """Set self.ops equal to a list of operations."""
-        if self.ops is None:
-            self.ops = []
-
         self.ops.extend(ops)
 
 
@@ -141,7 +150,7 @@ class CardData:
 
     @property
     def card_count(self) -> int:
-        return self.job_qty // self.bkt_qty + self.remainder_parts > 0
+        return self.part_qty // self.bkt_qty + (self.remainder_parts > 0)
 
     @property
     def remainder_parts(self) -> int:
@@ -195,23 +204,28 @@ def create_cards(card_data_list: CardData) -> list[Card]:
     card_list = []
 
     for card_data in card_data_list:
-        for i in range(0, card_data.part_qty, card_data.bkt_qty):
+        for card_index in range(card_data.card_count):
             card = Card(
-                card_num=i % card_data.bkt_qty,
+                card_num=card_index + 1,
                 card_count=card_data.card_count,
                 job_num=card_data.job_num,
                 part_num=card_data.part_num,
-                bkt_qty=card_data.bkt_qty,
+                bkt_qty=int(
+                    card_data.remainder_parts and card_index + 1 == card_data.card_count
+                )
+                or card_data.bkt_qty,
                 pro_date=card_data.pro_date,
                 part_name=card_data.part_name,
                 job_qty=card_data.job_qty,
                 bkt_hrs=card_data.bkt_hrs,
                 exp_vel=card_data.exp_vel,
+                ops=card_data.ops,
             )
 
-            card.set_ops(card_data.get_ops())
+            # card.set_ops(card_data.get_ops())
 
             card_list.append(card)
+            card_index += 1
 
         print(card_list)
 

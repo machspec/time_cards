@@ -29,7 +29,7 @@ CARD_DETAIL_FIELDS: tuple = (
 )
 
 # only works on windows
-FONT = ImageFont.truetype("CascadiaMono.ttf", 12, encoding="unic")
+FONT = ImageFont.truetype("CascadiaMono.ttf", 22, encoding="unic")
 FONT_COLOR = (0, 0, 0)
 
 # foreground (text) color of elements
