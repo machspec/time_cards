@@ -53,29 +53,18 @@ def main():
     # frame for output buttons
     btn_frame = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
 
-    # button that sends form values to app.data
-    btn_get_values = tk.Button(btn_frame, text="Export Cards")
-    btn_get_values.bind(
+    # button to create printable cards
+    btn_export_cards = tk.Button(btn_frame, text="Export Cards")
+    btn_export_cards.bind(
         "<Button-1>",
-        lambda x: root.add_data(
-            "card_data",
-            app.core.create_card_data(
-                app.helpers.get_group_values(card_quantity_entries),
-                app.helpers.get_group_values(card_detail_entries),
-                entry_ops.get("1.0", tk.END),
-            ),
+        lambda x: app.core.export_cards(
+            app.helpers.get_group_values(card_quantity_entries),
+            app.helpers.get_group_values(card_detail_entries),
+            entry_ops.get("1.0", tk.END),
         ),
     )
 
-    # button to display output preview
-    btn_print_preview = tk.Button(btn_frame, text="Print Preview")
-    btn_print_preview.bind(
-        "<Button-1>",
-        lambda x: app.core.create_cards(root.data["card_data"]),
-    )
-
-    btn_get_values.grid()
-    btn_print_preview.grid()
+    btn_export_cards.grid()
 
     # draw GUI elements to the window
     card_quantity_entries.grid(sticky=tk.EW)

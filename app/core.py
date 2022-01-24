@@ -59,7 +59,7 @@ class Card:
 
     # TODO: Jacob
     def build_back_image(self):
-        """Put the image together."""
+        """Put back images together."""
         card_back = Image.open("./app/resources/card_back.jpg")
 
         back_output = card_back.copy()
@@ -83,7 +83,7 @@ class Card:
         self.back_image = back_output
 
     def build_front_image(self):
-        """Put the image together."""
+        """Put front images together."""
         card_front = Image.open("./app/resources/card_front.jpg")
 
         front_output = card_front.copy()
@@ -123,6 +123,7 @@ class Card:
 
         x = initial_x
         y = initial_y
+
         for index, item in enumerate(ops):
             self.place_text(img, item, (x, y))
 
@@ -203,34 +204,30 @@ class CardData:
         return self.ops
 
 
-def create_cards(card_data_list: CardData) -> list[Card]:
-    """Takes information from a CardData object and returns a list of Cards."""
-    card_list = []
+class SheetData:
+    def __init__(self, size: tuple[int], margin_x: int = 0, margin_y: int = 0):
+        self.size = size
+        self.margin_x = margin_x
+        self.margin_y = margin_y
 
-    for card_data in card_data_list:
-        print(card_data.remainder_parts)
-        for card_index in range(0, card_data.card_count):
-            card = Card(
-                card_num=card_index + 1,
-                card_count=card_data.card_count,
-                job_num=card_data.job_num,
-                part_num=card_data.part_num,
-                bkt_qty=int(
-                    card_data.remainder_parts and card_index + 1 == card_data.card_count
-                )
-                or card_data.bkt_qty,
-                pro_date=card_data.pro_date,
-                part_name=card_data.part_name,
-                job_qty=card_data.job_qty,
-                bkt_hrs=card_data.bkt_hrs,
-                exp_vel=card_data.exp_vel,
-                ops=card_data.ops,
-            )
+        self.front = Image.new("RGB", self.size, "white")
+        self.back = Image.new("RGB", self.size, "white")
 
-            # card.set_ops(card_data.get_ops())
+    def add_card(self, card):
+        self.front.paste(card.front_image, (self.current_x, self.current_y))
 
-            card_list.append(card)
-            card_index += 1
+    @property
+    def current_x(self):
+        return 0
+
+    @property
+    def current_y(self):
+        return 0
+
+
+def add_cards_to_sheets(sheet_data: SheetData, cards: list[Card]):
+    sheet_back = Image.new("RGB", sheet_data.size, "white")
+    sheet_front = Image.new("RGB", sheet_data.size, "white")
 
     front_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
     back_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
@@ -242,7 +239,8 @@ def create_cards(card_data_list: CardData) -> list[Card]:
 
     x = initial_x
     y = initial_y
-    for i, card in enumerate(card_list):
+
+    for i, card in enumerate(cards):
         card.build_image()
 
         if i == 0 or not i % 2:
@@ -262,6 +260,35 @@ def create_cards(card_data_list: CardData) -> list[Card]:
     back_card_block.show()
 
 
+def create_cards(card_data_list: CardData) -> list[Card]:
+    """Takes information from a CardData object and returns a list of Cards."""
+    card_list = []
+
+    for card_data in card_data_list:
+        for card_index in range(0, card_data.card_count):
+            card = Card(
+                card_num=card_index + 1,
+                card_count=card_data.card_count,
+                job_num=card_data.job_num,
+                part_num=card_data.part_num,
+                bkt_qty=int(
+                    card_data.remainder_parts and card_index + 1 == card_data.card_count
+                )
+                or card_data.bkt_qty,
+                pro_date=card_data.pro_date,
+                part_name=card_data.part_name,
+                job_qty=card_data.job_qty,
+                bkt_hrs=card_data.bkt_hrs,
+                exp_vel=card_data.exp_vel,
+                ops=card_data.ops,
+            )
+
+            card_list.append(card)
+            card_index += 1
+
+    return card_list
+
+
 def create_card_data(
     quantities: dict[str, str], details: dict[str, str], ops: str
 ) -> CardData:
@@ -271,6 +298,17 @@ def create_card_data(
     ops: list = [i.strip().upper() for i in ops.split(",")]
 
     return CardData(**qtys, **dtls, ops=ops)
+
+
+def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
+    """Run full card-creation process."""
+    sheet_data = SheetData((2550, 3300))
+
+    card_data: CardData = create_card_data(quantities, details, ops)
+    card_list: list[Card] = create_cards(card_data)
+    sheets = add_cards_to_sheets(sheet_data, card_list)
+
+    sheets[0].front.show()
 
 
 def get_form_translation(label: str) -> str:
