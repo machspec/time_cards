@@ -7,7 +7,7 @@ from app import constants
 from typing import Any
 
 import tkinter as tk
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageDraw
 
 
 class App(tk.Tk):
@@ -44,78 +44,79 @@ class Card:
 
     card_num: str
     card_count: str
-    # cope
-    image: Image
 
-    bkt_hrs: str
-    bkt_qty: str
-    exp_vel: str
     job_num: str
-    job_qty: str
+    part_num: str
+    bkt_qty: str
+    pro_date: str
     part_name: str
+    job_qty: str
+    bkt_hrs: str
+    exp_vel: str
 
-    ops: list[constants.Operation]
+    image: Image = None
+    ops: list[constants.Operation] = None
 
     def build_image(self):
-        """Place the text values on the image."""
+        """Put the image together."""
+        card = Image.open("./app/resources/card.png")
+        export = card.copy()
 
-        def appendText(img, text, x, y):
-            draw = ImageDraw.Draw(img)
-            draw.text((x, y), text, constants.FONT_COLOR, constants.FONT)
+        self.place_text(export, self.job_num, (64, 7))
+        self.place_text(export, self.part_num, (64, 30))
+        self.place_text(export, self.bkt_qty, (64, 50))
+        self.place_text(export, self.pro_date, (272, 7))
+        self.place_text(export, self.part_name, (250, 30))
+        self.place_text(export, self.job_qty, (255, 50))
+        self.place_text(export, self.bkt_hrs, (370, 50))
+        self.place_text(export, self.exp_vel, (410, 7))
 
-            def setMaOps(img, ops):
-                x = 5
-                y = 92
-                for index, item in enumerate(ops):
-                    appendText(img, item, x, y)
-                    if index in {5, 11, 17}:
-                        x += 117  # whatever
-                        y = 92
-                    else:
-                        y += 21  # :(
+        self.place_operations_text(export, self.ops)
 
-                    if index == 23:
-                        return
+        self.image = export
+        self.get_image()  # test
 
-            card = Image.open("resources/card.png")
-            export = card.copy()
+    def place_operations_text(self, img: Image, ops: list):
+        """Place operation names on the image."""
+        initial_x = 5
+        initial_y = 92
+        offset_x = 117
+        offset_y = 21
 
-            x = 64
-            y = 7
-            appendText(export, self.job_num, x, y)
-            y = 30
-            appendText(export, self.part_num, x, y)
-            y = 50
-            appendText(export, self.bkt_qty, x, y)
+        x = initial_x
+        y = initial_y
 
-            x = 272
-            y = 7
-            appendText(export, self.pro_date, x, y)
+        for index, item in enumerate(ops):
+            self.place_text(img, item, (x, y))
 
-            x = 250
-            y = 30
-            appendText(export, self.part_name, x, y)
+            if index in {5, 11, 17}:
+                x += offset_x
+                y = initial_y
 
-            x = 255
-            y = 50
-            appendText(export, self.job_qty, x, y)
+            else:
+                y += offset_y
 
-            x = 370
-            y = 50
-            appendText(export, self.bkt_hrs, x, y)
+            if index == 23:
+                return
 
-            x = 410
-            y = 7
-            appendText(export, self.exp_vel, x, y)
+    def place_text(self, img: Image, text: str, coords: tuple):
+        """Place card text on the image."""
+        if not isinstance(text, str):
+            text = f"{text}"
 
-            # setMaOps(export, ("wasdf" * 6))
-
-            self.image = export
-            self.get_image()
+        draw = ImageDraw.Draw(img)
+        draw.text(coords, text, constants.FONT_COLOR, constants.FONT)
 
     def get_image(self):
         """Return the Card image."""
         self.image.show()
+
+    def set_ops(self, ops: list):
+        """Set self.ops equal to a list of operations."""
+        if self.ops is None:
+            self.ops = []
+
+        self.ops.extend(ops)
 
 
 @dataclass
@@ -123,23 +124,28 @@ class CardData:
     """Contains information for a group of similar cards."""
 
     bkt_hrs: str
-    bkt_qty: str
+    bkt_qty: int
     exp_vel: str
     job_num: str
-    job_qty: str
+    job_qty: int
     part_name: str
     part_num: str
-    part_qty: str
+    part_qty: int
     pro_date: str
     ops: list[str] = None
 
-    @property
-    def card_count(self) -> str:
-        return f"{self.job_qty // self.bkt_qty + self.remainder_parts > 0}"
+    def __post_init__(self):
+        self.bkt_qty = int(self.bkt_qty)
+        self.job_qty = int(self.job_qty)
+        self.part_qty = int(self.part_qty)
 
     @property
-    def remainder_parts(self) -> str:
-        return f"{self.job_qty % self.bkt_qty}"
+    def card_count(self) -> int:
+        return self.job_qty // self.bkt_qty + self.remainder_parts > 0
+
+    @property
+    def remainder_parts(self) -> int:
+        return self.job_qty % self.bkt_qty
 
     def add_ops(self, data: list) -> None:
         """Append a new operation to the existing list.
@@ -165,19 +171,8 @@ class CardData:
         return self.ops
 
 
-def create_card_data(
-    quantities: dict[str, str], details: dict[str, str], ops: str
-) -> CardData:
-    """Create a new CardData object from form values."""
-    qtys: dict = translate_dict_keys(quantities)
-    dtls: dict = translate_dict_keys(details)
-    ops: list = [i.strip().upper() for i in ops.split(",")]
-
-    return CardData(**qtys, **dtls, ops=ops)
-
-
 # TODO: Owen
-def create_cards(card_data: CardData) -> list[Card]:
+def create_cards(card_data_list: CardData) -> list[Card]:
     """Takes information from a CardData object and returns a list of Cards.
 
     Notes:
@@ -197,22 +192,42 @@ def create_cards(card_data: CardData) -> list[Card]:
         card_count will give you the max number of cards, and remainder will
         give you the number of parts left over.
     """
-    cardList = []
-    for i in range(0, card_data.part_qty, card_data.bkt_qty):
-        cardList.append(
-            Card(
+    card_list = []
+
+    for card_data in card_data_list:
+        for i in range(0, card_data.part_qty, card_data.bkt_qty):
+            card = Card(
                 card_num=i % card_data.bkt_qty,
-                card_count=card_data.card_count(),
-                bkt_hrs=card_data.bkt_hrs,
-                bkt_qty=card_data.bkt_qty,
-                exp_vel=card_data.exp_vel,
+                card_count=card_data.card_count,
                 job_num=card_data.job_num,
-                job_qty=card_data.job_qty,
+                part_num=card_data.part_num,
+                bkt_qty=card_data.bkt_qty,
+                pro_date=card_data.pro_date,
                 part_name=card_data.part_name,
+                job_qty=card_data.job_qty,
+                bkt_hrs=card_data.bkt_hrs,
+                exp_vel=card_data.exp_vel,
             )
-        )
-    print(cardList)
-    return cardList
+
+            card.set_ops(card_data.get_ops())
+
+            card_list.append(card)
+
+        print(card_list)
+
+    for card in card_list:
+        card.build_image()
+
+
+def create_card_data(
+    quantities: dict[str, str], details: dict[str, str], ops: str
+) -> CardData:
+    """Create a new CardData object from form values."""
+    qtys: dict = translate_dict_keys(quantities)
+    dtls: dict = translate_dict_keys(details)
+    ops: list = [i.strip().upper() for i in ops.split(",")]
+
+    return CardData(**qtys, **dtls, ops=ops)
 
 
 def get_form_translation(label: str) -> str:

@@ -50,8 +50,11 @@ def main():
     lbl_ops_instructions.grid()
     entry_ops.grid()
 
+    # frame for output buttons
+    btn_frame = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
+
     # button that sends form values to app.data
-    btn_get_values = tk.Button(root, text="Export Cards")
+    btn_get_values = tk.Button(btn_frame, text="Export Cards")
     btn_get_values.bind(
         "<Button-1>",
         lambda x: root.add_data(
@@ -64,10 +67,20 @@ def main():
         ),
     )
 
+    # button to display output preview
+    btn_print_preview = tk.Button(btn_frame, text="Print Preview")
+    btn_print_preview.bind(
+        "<Button-1>",
+        lambda x: app.core.create_cards(root.data["card_data"]),
+    )
+
+    btn_get_values.grid()
+    btn_print_preview.grid()
+
     # draw GUI elements to the window
     card_quantity_entries.grid(sticky=tk.EW)
     card_detail_entries.grid(sticky=tk.EW)
-    btn_get_values.grid(row=0, column=1)
+    btn_frame.grid(row=0, column=1)
     frame_op_entry.grid(row=1, column=1)
 
     root.mainloop()
