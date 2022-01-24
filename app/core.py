@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from app import constants
 from typing import Any
 
@@ -150,11 +151,11 @@ class CardData:
 
     @property
     def card_count(self) -> int:
-        return self.part_qty // self.bkt_qty + (self.remainder_parts > 0)
+        return math.ceil(self.part_qty // self.bkt_qty) + (self.remainder_parts > 0)
 
     @property
     def remainder_parts(self) -> int:
-        return self.job_qty % self.bkt_qty
+        return self.part_qty % self.bkt_qty
 
     def add_ops(self, data: list) -> None:
         """Append a new operation to the existing list.
@@ -204,7 +205,8 @@ def create_cards(card_data_list: CardData) -> list[Card]:
     card_list = []
 
     for card_data in card_data_list:
-        for card_index in range(card_data.card_count):
+        print(card_data.remainder_parts)
+        for card_index in range(0, card_data.card_count):
             card = Card(
                 card_num=card_index + 1,
                 card_count=card_data.card_count,
