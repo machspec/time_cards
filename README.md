@@ -5,7 +5,7 @@ This program provides data entry forms and automatic formatting for printing out
 ### Current GUI:
 ![Current GUI](../media/gui.jpg)
 
-After entering quantities, details, and operations, clicking the "Export Cards" button will open the resulting time cards in PDF format. This PDF file is saved to `time_cards/output/[job number]-[time of export]`.
+After entering quantities, details, and operations, clicking the "Export Cards" button will open the resulting time cards in PDF format. This PDF file is saved to `Time Card Generator/output/[job number]-[time of export]`.
 
 ### On the Front
 ![Reference Template](../media/card_front.jpg)
