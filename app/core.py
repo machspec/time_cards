@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from app import card, constants, sheet, pdf
+from app import card, constants, sheet
 from datetime import datetime
+from PIL import Image
 
 import pathlib
 import tkinter as tk
@@ -131,8 +132,8 @@ def generate_page_images(
     path.mkdir(parents=True, exist_ok=True)
 
     for page_num, s in enumerate(sheets):
-        s.front.save(path / f"{page_num}-front.jpg")
-        s.back.save(path / f"{page_num}-back.jpg")
+        s.front.save(path / f"{page_num}-1.jpg")
+        s.back.save(path / f"{page_num}-2.jpg")
 
     return path
 
@@ -140,12 +141,15 @@ def generate_page_images(
 def generate_pdf(filename: str, image_directory: pathlib.Path):
     """Generate the final PDF for printing."""
     image_paths = image_directory.glob("*.jpg")
-    output = pdf.PDF(image_directory / filename, constants.SHEET_SIZE)
 
-    for image_path in image_paths:
-        output.add_image_as_page(image_path)
+    images = [Image.open(path) for path in image_paths]
+    first_page = images.pop(0)
 
-    output.build_contents()
+    output_filename = f"{image_directory / filename}.pdf"
+
+    first_page.save(
+        output_filename, "PDF", resolution=100.0, save_all=True, append_images=images
+    )
 
 
 def get_form_translation(label: str) -> str:
