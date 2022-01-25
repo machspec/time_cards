@@ -4,16 +4,6 @@ import app
 import tkinter as tk
 
 
-ENTRY_STYLE: dict = {
-    "bg": app.constants.BACKGROUND_COLOR_ENTRY,
-    "fg": app.constants.FOREGROUND_COLOR,
-}
-LABEL_STYLE: dict = {
-    "bg": app.constants.BACKGROUND_COLOR,
-    "fg": app.constants.FOREGROUND_COLOR,
-}
-
-
 def main():
     root = app.core.App("Time Card Generator", (554, 265))
     root.configure(bg=app.constants.BACKGROUND_COLOR)
@@ -25,9 +15,9 @@ def main():
         root, **app.constants.BOX_STYLE
     )
     card_quantity_entries.add_similar_widgets(
-        app.constants.CARD_QUANTITY_FIELDS, tk.Entry, **ENTRY_STYLE
+        app.constants.CARD_QUANTITY_FIELDS, tk.Entry, **app.constants.ENTRY_STYLE
     )
-    card_quantity_entries.build_frame(**LABEL_STYLE)
+    card_quantity_entries.build_frame(**app.constants.LABEL_STYLE)
 
     # fields that tell the program the details each card should display
     card_detail_entries = app.helpers.LabeledWidgetGroup(
@@ -39,14 +29,18 @@ def main():
         bg=app.constants.BACKGROUND_COLOR_ENTRY,
         fg=app.constants.FOREGROUND_COLOR,
     )
-    card_detail_entries.build_frame(**LABEL_STYLE)
+    card_detail_entries.build_frame(**app.constants.LABEL_STYLE)
 
     # entry for operations
     frame_op_entry = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
     lbl_ops_instructions = tk.Label(
-        frame_op_entry, text="Enter operations separated by commas.", **LABEL_STYLE
+        frame_op_entry,
+        text="Enter operations separated by commas.",
+        **app.constants.LABEL_STYLE
     )
-    entry_ops = tk.Text(frame_op_entry, width=40, height=11, **ENTRY_STYLE)
+    entry_ops = tk.Text(
+        frame_op_entry, width=40, height=11, **app.constants.ENTRY_STYLE
+    )
     lbl_ops_instructions.grid()
     entry_ops.grid()
 
