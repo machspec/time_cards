@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from app import card, constants, sheet
-
-import tkinter as tk
+from datetime import datetime
 from PIL import Image
+
+import pathlib
+import tkinter as tk
 
 
 class App(tk.Tk):
@@ -109,15 +111,45 @@ def create_card_data(
 
 def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     """Run full card-creation process."""
-    sheet_template = sheet.SheetTemplate((1548, 2003))
+    sheet_template = sheet.SheetTemplate(constants.SHEET_SIZE)
 
     card_data: card.CardData = create_card_data(quantities, details, ops)
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
 
-    for index, s in enumerate(sheets):
-        s.front.save(f"./output/{index}-front.jpg")
-        s.back.save(f"./output/{index}-back.jpg")
+    job_num: str = card_data.job_num
+
+    output_path = generate_page_images(job_num, sheets)
+    generate_pdf(job_num, output_path)
+
+
+def generate_page_images(
+    output_dir_name: str, sheets: list[sheet.Sheet]
+) -> pathlib.Path:
+    """Create image files from list of Sheets and return the output path."""
+    export_time = datetime.now().strftime("%m.%d.%Y-%H.%M")
+    path = pathlib.Path(f"./output/{output_dir_name}-{export_time}")
+    path.mkdir(parents=True, exist_ok=True)
+
+    for page_num, s in enumerate(sheets):
+        s.front.save(path / f"{page_num}-1.jpg")
+        s.back.save(path / f"{page_num}-2.jpg")
+
+    return path
+
+
+def generate_pdf(filename: str, image_directory: pathlib.Path):
+    """Generate the final PDF for printing."""
+    image_paths = image_directory.glob("*.jpg")
+
+    images = [Image.open(path) for path in image_paths]
+    first_page = images.pop(0)
+
+    output_filename = f"{image_directory / filename}.pdf"
+
+    first_page.save(
+        output_filename, "PDF", resolution=100.0, save_all=True, append_images=images
+    )
 
 
 def get_form_translation(label: str) -> str:
