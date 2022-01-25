@@ -7,6 +7,7 @@ from datetime import datetime
 from PIL import Image
 
 import pathlib
+import subprocess
 import tkinter as tk
 
 
@@ -31,7 +32,7 @@ def add_cards_to_sheets(
     offset_x = sheet_template.size[0] // 2
     offset_y = sheet_template.size[1] // 3
 
-    back_x = offset_x
+    back_x = offset_x + 10
     front_x = initial_x
     y = initial_y
 
@@ -42,7 +43,7 @@ def add_cards_to_sheets(
         if index != 0 and not index % 6:
             sheets.append(current_sheet)
             current_sheet = sheet.Sheet(sheet_template)
-            back_x = offset_x
+            back_x = offset_x + 10
             front_x = initial_x
             y = initial_y
 
@@ -50,14 +51,14 @@ def add_cards_to_sheets(
 
         if index == 0 or not index % 2:
             front_x = initial_x
-            back_x = offset_x
+            back_x = offset_x + 10
 
             current_sheet.back.paste(current_card.back_image, (back_x, y))
             current_sheet.front.paste(current_card.front_image, (front_x, y))
 
         else:
             front_x += offset_x
-            back_x -= offset_x
+            back_x -= offset_x - 10
 
             current_sheet.back.paste(current_card.back_image, (back_x, y))
             current_sheet.front.paste(current_card.front_image, (front_x, y))
@@ -119,7 +120,9 @@ def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     job_num: str = card_data.job_num
 
     output_path = generate_page_images(job_num, sheets)
-    generate_pdf(job_num, output_path)
+    output_file = generate_pdf(job_num, output_path)
+
+    open_in_explorer(output_file)
 
 
 def generate_page_images(
@@ -138,7 +141,7 @@ def generate_page_images(
 
 
 def generate_pdf(filename: str, image_directory: pathlib.Path):
-    """Generate the final PDF for printing."""
+    """Generate the final PDF for printing and return the output file path."""
     image_paths = image_directory.glob("*.jpg")
 
     images = [Image.open(path) for path in image_paths]
@@ -150,10 +153,16 @@ def generate_pdf(filename: str, image_directory: pathlib.Path):
         output_filename, "PDF", resolution=100.0, save_all=True, append_images=images
     )
 
+    return output_filename
+
 
 def get_form_translation(label: str) -> str:
     """Get variable name from constants.FORM_TRANSLATIONS constant, given label text."""
     return constants.FORM_TRANSLATIONS[label]
+
+
+def open_in_explorer(path: pathlib.Path):
+    subprocess.Popen(f'explorer "{path}"')
 
 
 def translate_dict_keys(d: dict[str, str]) -> dict:
