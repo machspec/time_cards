@@ -7,7 +7,6 @@ from datetime import datetime
 
 import pathlib
 import tkinter as tk
-from PIL import Image
 
 
 class App(tk.Tk):

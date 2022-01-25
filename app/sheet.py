@@ -1,12 +1,9 @@
-from dataclasses import dataclass
 from PIL import Image
 
 
 class SheetTemplate:
-    def __init__(self, size: tuple[int], margin_x: int = 0, margin_y: int = 0):
+    def __init__(self, size: tuple[int]):
         self.size = size
-        self.margin_x = margin_x
-        self.margin_y = margin_y
 
         self.front = Image.new(*self.parameters)
         self.back = Image.new(*self.parameters)
