@@ -1,4 +1,4 @@
-# MSI Time Cards
+# Time Card Generator
 
 This program provides data entry forms and automatic formatting for printing out time cards.
 
