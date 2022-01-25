@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app import card, constants, sheet
+from app import card, constants, sheet, pdf
 from datetime import datetime
 
 import pathlib
@@ -115,11 +115,17 @@ def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     card_data: card.CardData = create_card_data(quantities, details, ops)
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
-    generate_page_images(card_list[0].job_num, sheets)
+
+    job_num: str = card_data.job_num
+
+    output_path = generate_page_images(job_num, sheets)
+    generate_pdf(job_num, output_path)
 
 
-def generate_page_images(output_dir_name: str, sheets: list[sheet.Sheet]):
-    """Create image files from list of Sheets."""
+def generate_page_images(
+    output_dir_name: str, sheets: list[sheet.Sheet]
+) -> pathlib.Path:
+    """Create image files from list of Sheets and return the output path."""
     export_time = datetime.now().strftime("%m.%d.%Y-%H.%M")
     path = pathlib.Path(f"./output/{output_dir_name}-{export_time}")
     path.mkdir(parents=True, exist_ok=True)
@@ -127,6 +133,19 @@ def generate_page_images(output_dir_name: str, sheets: list[sheet.Sheet]):
     for page_num, s in enumerate(sheets):
         s.front.save(path / f"{page_num}-front.jpg")
         s.back.save(path / f"{page_num}-back.jpg")
+
+    return path
+
+
+def generate_pdf(filename: str, image_directory: pathlib.Path):
+    """Generate the final PDF for printing."""
+    image_paths = image_directory.glob("*.jpg")
+    output = pdf.PDF(image_directory / filename, constants.SHEET_SIZE)
+
+    for image_path in image_paths:
+        output.add_image_as_page(image_path)
+
+    output.build_contents()
 
 
 def get_form_translation(label: str) -> str:
