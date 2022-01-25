@@ -80,10 +80,9 @@ def create_cards(card_data: card.CardData) -> list[card.Card]:
             card_count=card_data.card_count,
             job_num=card_data.job_num,
             part_num=card_data.part_num,
-            bkt_qty=int(
-                card_data.remainder_parts and card_index + 1 == card_data.card_count
-            )
-            or card_data.bkt_qty,
+            bkt_qty=card_data.remainder_parts
+            if card_data.remainder_parts and card_index + 1 == card_data.card_count
+            else card_data.bkt_qty,
             pro_date=card_data.pro_date,
             part_name=card_data.part_name,
             job_qty=card_data.job_qty,
