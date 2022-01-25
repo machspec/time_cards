@@ -24,6 +24,7 @@ LABEL_STYLE: dict = {
     "fg": FOREGROUND_COLOR,
 }
 
+# input fields
 CARD_QUANTITY_FIELDS: tuple = (
     "Total Parts",
     "Parts Per Bucket",
@@ -58,3 +59,6 @@ FORM_TRANSLATIONS: dict = {
     "PRO Date": "pro_date",
     "Total Parts": "part_qty",
 }
+
+# pdf report details
+SHEET_SIZE: tuple[int] = (1548, 2003)

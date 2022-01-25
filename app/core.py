@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from app import card, constants, sheet
+from datetime import datetime
 
+import pathlib
 import tkinter as tk
 from PIL import Image
 
@@ -109,15 +111,23 @@ def create_card_data(
 
 def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     """Run full card-creation process."""
-    sheet_template = sheet.SheetTemplate((1548, 2003))
+    sheet_template = sheet.SheetTemplate(constants.SHEET_SIZE)
 
     card_data: card.CardData = create_card_data(quantities, details, ops)
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
+    generate_page_images(card_list[0].job_num, sheets)
 
-    for index, s in enumerate(sheets):
-        s.front.save(f"./output/{index}-front.jpg")
-        s.back.save(f"./output/{index}-back.jpg")
+
+def generate_page_images(output_dir_name: str, sheets: list[sheet.Sheet]):
+    """Create image files from list of Sheets."""
+    export_time = datetime.now().strftime("%m.%d.%Y-%H.%M")
+    path = pathlib.Path(f"./output/{output_dir_name}-{export_time}")
+    path.mkdir(parents=True, exist_ok=True)
+
+    for page_num, s in enumerate(sheets):
+        s.front.save(path / f"{page_num}-front.jpg")
+        s.back.save(path / f"{page_num}-back.jpg")
 
 
 def get_form_translation(label: str) -> str:
