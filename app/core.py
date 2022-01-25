@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from app import constants
+import math
+from app import card, constants, sheet
 from typing import Any
 
 import tkinter as tk
+from PIL import Image, ImageDraw, ImageFont
 
 
 class App(tk.Tk):
     """Main Application."""
-
-    data: dict[int, list[Any]] = dict()
 
     def __init__(self, title: str, size: tuple):
         super().__init__()
@@ -20,128 +20,91 @@ class App(tk.Tk):
         self.title(title)
         self.geometry(f"{size[0]}x{size[1]}")
 
-    def add_data(self, key: str, item: Any):
-        """Add data to the program.
 
-        Instantiates a list if self.data[key] does not exist.
+def add_cards_to_sheets(sheet_template: sheet.SheetTemplate, cards: list[card.Card]):
+    sheet_back = Image.new("RGB", sheet_template.size, "white")
+    sheet_front = Image.new("RGB", sheet_template.size, "white")
 
-        Parameters:
-            key <str>: key to which data will be added
-            item <Any>: item to be added to value of (key)
-        """
-        if not self.data.get(key) or self.data[key] is None:
-            self.data[key] = []
+    front_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
+    back_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
 
-        self.data[key].append(item)
-        print(self.data)
+    initial_x = 0
+    initial_y = 0
+    offset_x = 774
+    offset_y = 463
 
+    x = initial_x
+    y = initial_y
 
-# TODO: Owen
-@dataclass
-class Card:
-    """Contains information for a single card."""
+    for i, card in enumerate(cards):
+        card.build_image()
 
-    card_num: str
-    card_count: str
+        if i == 0 or not i % 2:
+            x = 0
+            front_card_block.paste(card.front_image, (x, y))
+            back_card_block.paste(card.back_image, (x, y))
 
-    bkt_hrs: str
-    bkt_qty: str
-    exp_vel: str
-    job_num: str
-    job_qty: str
-    part_name: str
+        else:
+            x += offset_x
 
-    ops: list[constants.Operation]
+            front_card_block.paste(card.front_image, (x, y))
+            back_card_block.paste(card.back_image, (x, y))
 
-    def build_image(self):
-        """Place the text values on the image."""
-        ...
+            y += offset_y
 
-    def get_image(self):
-        """Return the Card image."""
-        ...
+    front_card_block.show()
+    back_card_block.show()
 
 
-@dataclass
-class CardData:
-    """Contains information for a group of similar cards."""
+def create_cards(card_data_list: card.CardData) -> list[card.Card]:
+    """Takes information from a CardData object and returns a list of Cards."""
+    card_list = []
 
-    bkt_hrs: str
-    bkt_qty: str
-    exp_vel: str
-    job_num: str
-    job_qty: str
-    part_name: str
-    part_num: str
-    part_qty: str
-    pro_date: str
-    ops: list[str] = None
+    for card_data in card_data_list:
+        for card_index in range(0, card_data.card_count):
+            card = card.Card(
+                card_num=card_index + 1,
+                card_count=card_data.card_count,
+                job_num=card_data.job_num,
+                part_num=card_data.part_num,
+                bkt_qty=int(
+                    card_data.remainder_parts and card_index + 1 == card_data.card_count
+                )
+                or card_data.bkt_qty,
+                pro_date=card_data.pro_date,
+                part_name=card_data.part_name,
+                job_qty=card_data.job_qty,
+                bkt_hrs=card_data.bkt_hrs,
+                exp_vel=card_data.exp_vel,
+                ops=card_data.ops,
+            )
 
-    @property
-    def card_count(self) -> str:
-        return f"{self.job_qty // self.bkt_qty + self.remainder_parts > 0}"
+            card_list.append(card)
+            card_index += 1
 
-    @property
-    def remainder_parts(self) -> str:
-        return f"{self.job_qty % self.bkt_qty}"
-
-    def add_ops(self, data: list) -> None:
-        """Append a new operation to the existing list.
-
-        Instantiates a list if self.ops does not exist.
-        """
-        if self.ops is None:
-            self.ops = []
-
-        self.ops.append(data)
-
-    def set_ops(self, data: list) -> None:
-        """Set self.ops equal to a list of operations.
-
-        Instantiates a list if self.ops does not exist.
-        """
-        if self.ops is None:
-            self.ops = []
-
-        self.ops = data
-
-    def get_ops(self) -> list:
-        return self.ops
+    return card_list
 
 
 def create_card_data(
     quantities: dict[str, str], details: dict[str, str], ops: str
-) -> CardData:
-    """Create a new CardData object from form values."""
+) -> card.CardData:
+    """Create a new card.CardData object from form values."""
     qtys: dict = translate_dict_keys(quantities)
     dtls: dict = translate_dict_keys(details)
     ops: list = [i.strip().upper() for i in ops.split(",")]
 
-    return CardData(**qtys, **dtls, ops=ops)
+    return card.CardData(**qtys, **dtls, ops=ops)
 
 
-# TODO: Owen
-def create_cards(card_data: CardData) -> list[Card]:
-    """Takes information from a CardData object and returns a list of Cards.
+def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
+    """Run full card-creation process."""
+    sheet_template = sheet.SheetTemplate((2550, 3300))
 
-    Notes:
-        CardData.part_qty is Total Parts.
-        CardData.bkt_qty is Parts Per Bucket.
+    card_data: card.CardData = create_card_data(quantities, details, ops)
+    card_list: list[card.Card] = create_cards(card_data)
+    sheets = add_cards_to_sheets(sheet_template, card_list)
 
-        Essentially, you're taking the information and repeating it, but
-        the card number (top right) will change for each card in the set.
-
-        bkt_qty will only change on the last card, and that's if there are
-        parts left over from all the others. For example, say there are 101
-        parts in total. Each bucket contains no more than 25 parts. This means
-        that you'll have six cards. Five with a bkt_qty of 25 and one with a
-        bkt_qty of 1.
-
-        CardData has a couple of functions that should help you out here.
-        card_count will give you the max number of cards, and remainder will
-        give you the number of parts left over.
-    """
-    ...
+    sheets[0].front.show()
 
 
 def get_form_translation(label: str) -> str:
