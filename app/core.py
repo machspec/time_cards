@@ -115,7 +115,6 @@ def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
 
-    print(sheets)
     for index, s in enumerate(sheets):
         s.front.save(f"./output/{index}-front.jpg")
         s.back.save(f"./output/{index}-back.jpg")
