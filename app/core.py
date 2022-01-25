@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-import math
 from app import card, constants, sheet
-from typing import Any
 
 import tkinter as tk
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 
 class App(tk.Tk):
@@ -21,66 +18,80 @@ class App(tk.Tk):
         self.geometry(f"{size[0]}x{size[1]}")
 
 
-def add_cards_to_sheets(sheet_template: sheet.SheetTemplate, cards: list[card.Card]):
-    sheet_back = Image.new("RGB", sheet_template.size, "white")
-    sheet_front = Image.new("RGB", sheet_template.size, "white")
-
-    front_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
-    back_card_block = Image.new("RGB", (774 * 2, 463 * 3), "white")
+def add_cards_to_sheets(
+    sheet_template: sheet.SheetTemplate, cards: list[card.Card]
+) -> list[sheet.Sheet]:
+    for c in cards:
+        c.build_image()
 
     initial_x = 0
-    initial_y = 0
-    offset_x = 774
-    offset_y = 463
+    initial_y = (sheet_template.size[1] // 3 - cards[0].front_image.size[1] // 2) // 4
+    offset_x = sheet_template.size[0] // 2
+    offset_y = sheet_template.size[1] // 3
 
-    x = initial_x
+    back_x = offset_x
+    front_x = initial_x
     y = initial_y
 
-    for i, card in enumerate(cards):
-        card.build_image()
+    current_sheet = sheet.Sheet(sheet_template)
+    sheets = []
 
-        if i == 0 or not i % 2:
-            x = 0
-            front_card_block.paste(card.front_image, (x, y))
-            back_card_block.paste(card.back_image, (x, y))
+    for index, current_card in enumerate(cards):
+        if index != 0 and not index % 6:
+            sheets.append(current_sheet)
+            current_sheet = sheet.Sheet(sheet_template)
+            back_x = offset_x
+            front_x = initial_x
+            y = initial_y
+
+        current_card.build_image()
+
+        if index == 0 or not index % 2:
+            front_x = initial_x
+            back_x = offset_x
+
+            current_sheet.back.paste(current_card.back_image, (back_x, y))
+            current_sheet.front.paste(current_card.front_image, (front_x, y))
 
         else:
-            x += offset_x
+            front_x += offset_x
+            back_x -= offset_x
 
-            front_card_block.paste(card.front_image, (x, y))
-            back_card_block.paste(card.back_image, (x, y))
+            current_sheet.back.paste(current_card.back_image, (back_x, y))
+            current_sheet.front.paste(current_card.front_image, (front_x, y))
 
             y += offset_y
 
-    front_card_block.show()
-    back_card_block.show()
+    if not current_sheet in sheets:
+        sheets.append(current_sheet)
+
+    return sheets
 
 
-def create_cards(card_data_list: card.CardData) -> list[card.Card]:
+def create_cards(card_data: card.CardData) -> list[card.Card]:
     """Takes information from a CardData object and returns a list of Cards."""
     card_list = []
 
-    for card_data in card_data_list:
-        for card_index in range(0, card_data.card_count):
-            card = card.Card(
-                card_num=card_index + 1,
-                card_count=card_data.card_count,
-                job_num=card_data.job_num,
-                part_num=card_data.part_num,
-                bkt_qty=int(
-                    card_data.remainder_parts and card_index + 1 == card_data.card_count
-                )
-                or card_data.bkt_qty,
-                pro_date=card_data.pro_date,
-                part_name=card_data.part_name,
-                job_qty=card_data.job_qty,
-                bkt_hrs=card_data.bkt_hrs,
-                exp_vel=card_data.exp_vel,
-                ops=card_data.ops,
+    for card_index in range(0, card_data.card_count):
+        current_card = card.Card(
+            card_num=card_index + 1,
+            card_count=card_data.card_count,
+            job_num=card_data.job_num,
+            part_num=card_data.part_num,
+            bkt_qty=int(
+                card_data.remainder_parts and card_index + 1 == card_data.card_count
             )
+            or card_data.bkt_qty,
+            pro_date=card_data.pro_date,
+            part_name=card_data.part_name,
+            job_qty=card_data.job_qty,
+            bkt_hrs=card_data.bkt_hrs,
+            exp_vel=card_data.exp_vel,
+            ops=card_data.ops,
+        )
 
-            card_list.append(card)
-            card_index += 1
+        card_list.append(current_card)
+        card_index += 1
 
     return card_list
 
@@ -98,13 +109,16 @@ def create_card_data(
 
 def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     """Run full card-creation process."""
-    sheet_template = sheet.SheetTemplate((2550, 3300))
+    sheet_template = sheet.SheetTemplate((1548, 2003))
 
     card_data: card.CardData = create_card_data(quantities, details, ops)
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
 
-    sheets[0].front.show()
+    print(sheets)
+    for index, s in enumerate(sheets):
+        s.front.save(f"./output/{index}-front.jpg")
+        s.back.save(f"./output/{index}-back.jpg")
 
 
 def get_form_translation(label: str) -> str:

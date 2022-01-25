@@ -34,18 +34,11 @@ class Card:
 
         # place text on back image
         self.place_text(back_output, self.job_num, (53, 6))
-        self.place_text(back_output, self.pro_date, (125, 185))
-        self.place_text(
-            back_output,
-            f"{self.card_num}/{self.card_count}",
-            (720, 9),
-            constants.FONT_SMALL,
-        )
+        self.place_text(back_output, self.card_num, (357, 6))
 
         self.place_text(back_output, self.part_num, (78, 43))
         self.place_text(back_output, self.part_name, (78, 76))
-
-        self.place_text(back_output, self.bkt_qty, (357, 6))
+        self.place_text(back_output, self.pro_date, (125, 185))
         self.place_text(back_output, self.job_qty, (103, 150))
 
         self.back_image = back_output
