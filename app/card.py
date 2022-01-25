@@ -12,15 +12,16 @@ class Card:
     card_num: str
     card_count: str
 
-    job_num: str
-    part_num: str
-    bkt_qty: str
-    pro_date: str
-    part_name: str
-    job_qty: str
+    assembly: str
     bkt_hrs: str
+    bkt_qty: str
     exp_vel: str
+    job_num: str
+    job_qty: str
     ops: list[str]
+    part_name: str
+    part_num: str
+    pro_date: str
 
     back_image: Image = None
     front_image: Image = None
@@ -64,8 +65,9 @@ class Card:
         self.place_text(front_output, self.part_name, (412, 42))
 
         self.place_text(front_output, self.bkt_qty, (92, 78))
-        self.place_text(front_output, self.job_qty, (425, 78))
-        self.place_text(front_output, self.bkt_hrs, (613, 78))
+        self.place_text(front_output, self.job_qty, (307, 78))
+        self.place_text(front_output, self.bkt_hrs, (497, 78))
+        self.place_text(front_output, self.assembly, (700, 78))
 
         self.place_operations_text(front_output, self.ops)
 
@@ -117,21 +119,23 @@ class Card:
 class CardData:
     """Contains information for a group of similar cards."""
 
+    assembly: str
     bkt_hrs: str
     bkt_qty: int
     exp_vel: str
     job_num: str
-    job_qty: int
     part_name: str
     part_num: str
     part_qty: int
     pro_date: str
+
     ops: list[str] = None
 
     def __post_init__(self):
         self.bkt_qty = int(self.bkt_qty)
-        self.job_qty = int(self.job_qty)
         self.part_qty = int(self.part_qty)
+
+        self.job_qty = self.bkt_qty
 
     @property
     def card_count(self) -> int:

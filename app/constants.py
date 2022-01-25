@@ -32,11 +32,11 @@ CARD_QUANTITY_FIELDS: tuple = (
 
 CARD_DETAIL_FIELDS: tuple = (
     "Job",
+    "Assembly",
     "PRO Date",
     "ExpVel",
     "Part#",
     "Name",
-    "JobQty",
     "BktHrs",
 )
 
@@ -52,7 +52,7 @@ FORM_TRANSLATIONS: dict = {
     "BktHrs": "bkt_hrs",
     "ExpVel": "exp_vel",
     "Job": "job_num",
-    "JobQty": "job_qty",
+    "Assembly": "assembly",
     "Name": "part_name",
     "Part#": "part_num",
     "Parts Per Bucket": "bkt_qty",

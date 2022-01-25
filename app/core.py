@@ -77,19 +77,20 @@ def create_cards(card_data: card.CardData) -> list[card.Card]:
 
     for card_index in range(0, card_data.card_count):
         current_card = card.Card(
-            card_num=card_index + 1,
-            card_count=card_data.card_count,
-            job_num=card_data.job_num,
-            part_num=card_data.part_num,
+            assembly=card_data.assembly,
+            bkt_hrs=card_data.bkt_hrs,
             bkt_qty=card_data.remainder_parts
             if card_data.remainder_parts and card_index + 1 == card_data.card_count
             else card_data.bkt_qty,
-            pro_date=card_data.pro_date,
-            part_name=card_data.part_name,
-            job_qty=card_data.job_qty,
-            bkt_hrs=card_data.bkt_hrs,
+            card_count=card_data.card_count,
+            card_num=card_index + 1,
             exp_vel=card_data.exp_vel,
+            job_num=card_data.job_num,
+            job_qty=card_data.job_qty,
             ops=card_data.ops,
+            part_name=card_data.part_name,
+            part_num=card_data.part_num,
+            pro_date=card_data.pro_date,
         )
 
         card_list.append(current_card)
