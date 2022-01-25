@@ -20,7 +20,7 @@ class Card:
     job_qty: str
     bkt_hrs: str
     exp_vel: str
-    ops: list[constants.Operation]
+    ops: list[str]
 
     back_image: Image = None
     front_image: Image = None
