@@ -24,10 +24,7 @@ def main():
         root, **app.constants.BOX_STYLE
     )
     card_detail_entries.add_similar_widgets(
-        app.constants.CARD_DETAIL_FIELDS,
-        tk.Entry,
-        bg=app.constants.BACKGROUND_COLOR_ENTRY,
-        fg=app.constants.FOREGROUND_COLOR,
+        app.constants.CARD_DETAIL_FIELDS, tk.Entry, **app.constants.ENTRY_STYLE
     )
     card_detail_entries.build_frame(**app.constants.LABEL_STYLE)
 
