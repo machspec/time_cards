@@ -1,6 +1,7 @@
 """Program-specific classes and functions."""
 
 from __future__ import annotations
+from turtle import back
 
 from app import card, constants, sheet
 from datetime import datetime
@@ -68,35 +69,38 @@ def add_cards_to_sheets(
     if not current_sheet in sheets:
         sheets.append(current_sheet)
 
-    # page margins
-    margin_params = (
-        "RGB",
-        tuple(int(i * 1.1) for i in sheet_template.parameters[1]),
-        "white",
-    )
+    return sheets
 
-    # add margins to sheets
-    for s in sheets:
-        front_margins = Image.new(*margin_params)
-        back_margins = Image.new(*margin_params)
 
-        front_margins.paste(
-            s.front,
-            (
-                (front_margins.size[0] - sheet_template.size[0]) // 2,
-                (front_margins.size[1] - sheet_template.size[1]) // 2,
-            ),
-        )
+def add_uniform_margin(
+    sheet_template: sheet.SheetTemplate,
+    sheets: list[sheet.Sheet],
+    final_page_size: tuple[int],
+) -> list[sheet.Sheet]:
+    """Add uniform margin to sheet images."""
+
+    def paste_to_margin(params, s: sheet.Sheet, offset: tuple[int]) -> None:
+        """Paste the sheet front and back onto the margin image."""
+        front_margins = Image.new(*params)
+        back_margins = Image.new(*params)
+
+        front_margins.paste(s.front, offset)
+        back_margins.paste(s.back, offset)
+
         s.front = front_margins
+        s.back = back_margins
 
-        back_margins.paste(
-            s.back,
+    margin_params = sheet_template.create_parameters(final_page_size)
+
+    for s in sheets:
+        paste_to_margin(
+            margin_params,
+            s,
             (
-                (back_margins.size[0] - sheet_template.size[0]) // 2,
-                (back_margins.size[1] - sheet_template.size[1]) // 2,
+                (final_page_size[0] - s.size[0]) // 2,
+                (final_page_size[1] - s.size[1]) // 2,
             ),
         )
-        s.back = back_margins
 
     return sheets
 
@@ -147,6 +151,12 @@ def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     card_data: card.CardData = create_card_data(quantities, details, ops)
     card_list: list[card.Card] = create_cards(card_data)
     sheets = add_cards_to_sheets(sheet_template, card_list)
+
+    add_uniform_margin(
+        sheet_template,
+        sheets,
+        (int(sheet_template.size[0] * 1.1), int(sheet_template.size[1] * 1.1)),
+    )
 
     job_num: str = card_data.job_num
 

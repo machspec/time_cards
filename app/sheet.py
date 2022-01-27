@@ -15,6 +15,9 @@ class SheetTemplate:
     def parameters(self) -> tuple:
         return ("RGB", self.size, "white")
 
+    def create_parameters(self, size: tuple[int]) -> tuple:
+        return ("RGB", size or self.size, "white")
+
 
 class Sheet:
     back: Image
