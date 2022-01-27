@@ -7,6 +7,7 @@ import tkinter as tk
 def main():
     root = app.core.App("Time Card Generator", (554, 265))
     root.configure(bg=app.constants.BACKGROUND_COLOR)
+    root.iconbitmap("./time_cards.ico")
 
     # define GUI elements
 
