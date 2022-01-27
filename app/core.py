@@ -68,6 +68,36 @@ def add_cards_to_sheets(
     if not current_sheet in sheets:
         sheets.append(current_sheet)
 
+    # page margins
+    margin_params = (
+        "RGB",
+        tuple(int(i * 1.1) for i in sheet_template.parameters[1]),
+        "white",
+    )
+
+    # add margins to sheets
+    for s in sheets:
+        front_margins = Image.new(*margin_params)
+        back_margins = Image.new(*margin_params)
+
+        front_margins.paste(
+            s.front,
+            (
+                (front_margins.size[0] - sheet_template.size[0]) // 2,
+                (front_margins.size[1] - sheet_template.size[1]) // 2,
+            ),
+        )
+        s.front = front_margins
+
+        back_margins.paste(
+            s.back,
+            (
+                (back_margins.size[0] - sheet_template.size[0]) // 2,
+                (back_margins.size[1] - sheet_template.size[1]) // 2,
+            ),
+        )
+        s.back = back_margins
+
     return sheets
 
 
