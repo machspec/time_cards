@@ -135,7 +135,7 @@ class CardData:
         self.bkt_qty = int(self.bkt_qty)
         self.part_qty = int(self.part_qty)
 
-        self.job_qty = self.bkt_qty
+        self.job_qty = self.part_qty
 
     @property
     def card_count(self) -> int:
