@@ -56,7 +56,13 @@ def main():
         ),
     )
 
-    btn_export_cards.grid()
+    btn_import_data = tk.Button(btn_frame, text="Import Data")
+    btn_import_data.bind(
+        "<Button-1>", lambda x: app.core.import_data(card_detail_entries, entry_ops)
+    )
+
+    btn_import_data.grid(column=0, row=0)
+    btn_export_cards.grid(column=1, row=0)
 
     # draw GUI elements to the window
     card_quantity_entries.grid(sticky=tk.EW)
