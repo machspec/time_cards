@@ -1,7 +1,6 @@
 """Program-specific classes and functions."""
 
 from __future__ import annotations
-from turtle import back
 
 from app import card, constants, file_import, helpers, sheet
 from datetime import datetime
