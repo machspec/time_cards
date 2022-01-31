@@ -48,10 +48,10 @@ FONT_SMALL = ImageFont.truetype(
 
 # dict that describes how form labels are stored as variables
 FORM_TRANSLATIONS: dict = {
+    "Assembly": "assembly",
     "BktHrs": "bkt_hrs",
     "ExpVel": "exp_vel",
     "Job": "job_num",
-    "Assembly": "assembly",
     "Name": "part_name",
     "Part#": "part_num",
     "Parts Per Bucket": "bkt_qty",

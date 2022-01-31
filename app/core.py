@@ -3,13 +3,14 @@
 from __future__ import annotations
 from turtle import back
 
-from app import card, constants, sheet
+from app import card, constants, file_import, helpers, sheet
 from datetime import datetime
 from PIL import Image
 
 import pathlib
 import subprocess
 import tkinter as tk
+import tkinter.filedialog
 
 
 class App(tk.Tk):
@@ -200,6 +201,24 @@ def generate_pdf(filename: str, image_directory: pathlib.Path):
 def get_form_translation(label: str) -> str:
     """Get variable name from constants.FORM_TRANSLATIONS constant, given label text."""
     return constants.FORM_TRANSLATIONS[label]
+
+
+def import_data(forms: helpers.LabeledWidgetGroup, text: tk.Text) -> None:
+    """Prompts the user for an Excel file (*.xlsx), then fills GUI forms with its contents."""
+    file_path = pathlib.Path(
+        tkinter.filedialog.askopenfilename(
+            title="Import Data",
+            filetypes=(
+                ("Excel Spreadsheet", "*.xlsx"),
+                # ("Comma-Separated Values", "*.csv"),
+            ),
+        )
+    )
+
+    if file_path.suffix == ".xlsx":
+        form_values = file_import.form_values_from_excel(file_path)
+        form_values.fill_forms(forms)
+        form_values.fill_text_entry(text)
 
 
 def open_in_explorer(path: pathlib.Path):
