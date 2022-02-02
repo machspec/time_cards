@@ -5,6 +5,7 @@ from __future__ import annotations
 from app import card, constants, file_import, helpers, sheet
 from datetime import datetime
 from PIL import Image
+from tkinter import messagebox
 
 import pathlib
 import subprocess
@@ -25,16 +26,19 @@ class App(tk.Tk):
 def add_cards_to_sheets(
     sheet_template: sheet.SheetTemplate, cards: list[card.Card]
 ) -> list[sheet.Sheet]:
+    """Build card images and add them to sheets, front and back."""
+
     for c in cards:
-        c.build_image()
+        c.build_card()
 
     initial_x = 0
     initial_y = (sheet_template.size[1] // 3 - cards[0].front_image.size[1] // 2) // 4
+
     offset_x = sheet_template.size[0] // 2
     offset_y = sheet_template.size[1] // 3
 
-    back_x = offset_x + 10
     front_x = initial_x
+    back_x = offset_x + 10
     y = initial_y
 
     current_sheet = sheet.Sheet(sheet_template)
@@ -44,11 +48,10 @@ def add_cards_to_sheets(
         if index != 0 and not index % 6:
             sheets.append(current_sheet)
             current_sheet = sheet.Sheet(sheet_template)
-            back_x = offset_x + 10
-            front_x = initial_x
-            y = initial_y
 
-        current_card.build_image()
+            front_x = initial_x
+            back_x = offset_x + 10
+            y = initial_y
 
         if index == 0 or not index % 2:
             front_x = initial_x
@@ -80,7 +83,7 @@ def add_uniform_margin(
     """Add uniform margin to sheet images."""
 
     def paste_to_margin(params, s: sheet.Sheet, offset: tuple[int]) -> None:
-        """Paste the sheet front and back onto the margin image."""
+        """Paste the sheet, front and back, onto the margin image."""
         front_margins = Image.new(*params)
         back_margins = Image.new(*params)
 
@@ -113,9 +116,11 @@ def create_cards(card_data: card.CardData) -> list[card.Card]:
         current_card = card.Card(
             assembly=card_data.assembly,
             bkt_hrs=card_data.bkt_hrs,
-            bkt_qty=card_data.remainder_parts
-            if card_data.remainder_parts and card_index + 1 == card_data.card_count
-            else card_data.bkt_qty,
+            bkt_qty=(
+                card_data.remainder_parts
+                if card_data.remainder_parts and card_index + 1 == card_data.card_count
+                else card_data.bkt_qty
+            ),
             card_count=card_data.card_count,
             card_num=card_index + 1,
             exp_vel=card_data.exp_vel,
@@ -146,6 +151,20 @@ def create_card_data(
 
 def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     """Run full card-creation process."""
+
+    # show an error if required fields left blank
+    if not quantities["Parts Per Bucket"]:
+        messagebox.showerror("Required Field", '"Parts Per Bucket" cannot be empty.')
+        return
+
+    # show a warning for large part quantities
+    if int(quantities["Total Parts"]) >= constants.LARGE_PART_QUANTITY:
+        if not messagebox.askokcancel(
+            "Warning: Total Parts",
+            "Large part quantities can result in large documents and slow render times. Are you sure?",
+        ):
+            return
+
     sheet_template = sheet.SheetTemplate(constants.SHEET_SIZE)
 
     card_data: card.CardData = create_card_data(quantities, details, ops)
@@ -170,7 +189,10 @@ def generate_page_images(
     output_dir_name: str, sheets: list[sheet.Sheet]
 ) -> pathlib.Path:
     """Create image files from list of Sheets and return the output path."""
-    export_time = datetime.now().strftime("%m.%d.%Y-%H.%M")
+
+    # export_time goes down to the second to prevent most permissions errors.
+    export_time = datetime.now().strftime("%m.%d.%Y-%H.%M.%S")
+
     path = pathlib.Path(f"./output/{output_dir_name}-{export_time}")
     path.mkdir(parents=True, exist_ok=True)
 
@@ -186,10 +208,10 @@ def generate_pdf(filename: str, image_directory: pathlib.Path):
     image_paths = image_directory.glob("*.jpg")
 
     images = [Image.open(path) for path in image_paths]
-    first_page = images.pop(0)
-
     output_filename = f"{image_directory / filename}.pdf"
 
+    # attach all pages to the first page
+    first_page = images.pop(0)
     first_page.save(
         output_filename, "PDF", resolution=100.0, save_all=True, append_images=images
     )
@@ -200,7 +222,13 @@ def generate_pdf(filename: str, image_directory: pathlib.Path):
 def import_data(
     widget_groups: tuple[helpers.LabeledWidgetGroup], text: tk.Text
 ) -> None:
-    """Prompts the user for an Excel file (*.xlsx), then fills GUI forms with its contents."""
+    """Prompts user for a file, then fills GUI forms with its contents.
+
+    Supported:
+    - Excel (*.xlsx)
+    """
+
+    # TODO: Add support for CSV
     file_path = pathlib.Path(
         tkinter.filedialog.askopenfilename(
             title="Import Data",
@@ -217,7 +245,7 @@ def import_data(
         form_values = file_import.form_values_from_excel(ws)
 
         for group in widget_groups:
-            form_values.fill_forms(group)
+            form_values.fill_labeled_widget_group(group)
 
         form_values.fill_text_entry(text)
 

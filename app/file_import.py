@@ -21,7 +21,7 @@ class FormValues:
         part_num: str,
         part_qty: str,
         ops: list[str],
-        **kwargs,
+        **_,  # discard unrecognized columns
     ):
         self.assembly = assembly
         self.bkt_hrs = bkt_hrs
@@ -31,8 +31,12 @@ class FormValues:
         self.part_qty = part_qty
         self.ops = ops
 
-    def fill_forms(self, widget_group: LabeledWidgetGroup) -> None:
-        """Fill tk.Entry type widgets."""
+    def fill_labeled_widget_group(self, widget_group: LabeledWidgetGroup) -> None:
+        """Fill a group of widgets contained in a `LabeledWidgetGroup`.
+
+        parameters:
+        - widget_group <LabeledWidgetGroup>: widgets to be filled out
+        """
 
         def set_entry_value(form: str, value: str):
             """Clear then set the value of (form) to (value)."""
@@ -50,7 +54,7 @@ class FormValues:
             set_entry_value(widget, actual_key)
 
     def fill_text_entry(self, widget: tk.Text) -> None:
-        """Fill tk.Text type widgets."""
+        """Fill a tkinter `Text` widget."""
         widget.delete(1.0, tk.END)
         widget.insert(tk.END, ",".join(self.ops))
 

@@ -30,32 +30,34 @@ class WidgetGroup(ABC, tk.Frame):
 class LabeledWidgetGroup(WidgetGroup):
     """Frame with rows consisting of a label followed by a widget."""
 
-    def __init__(self, root: tk.Tk, **params):
-        super().__init__(master=root, **params)
+    def __init__(self, root: tk.Tk, **frame_params):
+        super().__init__(master=root, **frame_params)
 
         self.widgets: dict[str, tk.Widget] = dict()
 
-    def add_similar_widgets(self, labels: tuple[str], widget_class: object, **params):
+    def add_similar_widgets(
+        self, labels: tuple[str], widget_class: object, **widget_params
+    ):
         """Add several widgets of the same type to the collection.
 
         parameters:
-            labels <tuple>: labels for each widget
-            widget_class <object>: type of all widgets to be added
-            params: optional parameters passed to all widgets
+        - labels <tuple>: labels for each widget
+        - widget_class <object>: type of all widgets to be added
+        - widget_params: optional parameters passed to all widgets
         """
 
         for label in labels:
-            self.widgets[label] = widget_class(self, **params)
+            self.widgets[label] = widget_class(self, **widget_params)
 
-    def add_widgets(self, widgets: dict[str, tk.Widget], **params):
+    def add_widgets(self, widgets: dict[str, tk.Widget], **widget_params):
         """Add several widgets to the collection.
 
         parameters:
-            widgets <dict>: dictionary {label_text: widget_type}
-            params: optional parameters passed to all widgets
+        - widgets <dict>: dictionary {label_text: widget_type}
+        - widget_params: optional parameters passed to all widgets
         """
         for label, widget in widgets.items():
-            self.widgets[label] = widget(self, **params)
+            self.widgets[label] = widget(self, **widget_params)
 
     def build_frame(self, **lbl_params):
         """Grid-attach all widgets and labels.
@@ -64,10 +66,12 @@ class LabeledWidgetGroup(WidgetGroup):
         """
 
         self.grid_columnconfigure(0, weight=1)
+
         for index, (label, widget) in enumerate(self.widgets.items()):
             tk.Label(self, text=f"{label}:", **lbl_params).grid(
                 row=index, column=0, sticky=tk.E
             )
+
             widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
 
 
@@ -82,7 +86,7 @@ def get_group_values(group: WidgetGroup) -> dict[str, str]:
 
 
 def translate_dict_key(key: str, translations: tuple[dict]) -> str:
-    """Return a translated string from a dictionary of translations."""
+    """Return a translated string per a group of translations."""
     for translation in translations:
         try:
             return get_form_translation(key, translation)
@@ -93,13 +97,16 @@ def translate_dict_key(key: str, translations: tuple[dict]) -> str:
     raise NoTranslationError("Key does not exist within any supplied dictionaries.")
 
 
-def translate_dict_keys(d: dict[str, str], translations: tuple[dict]) -> dict:
-    """Return a dict with translated keys per a translation dictionary."""
+def translate_dict_keys(dictionary: dict[str, str], translations: tuple[dict]) -> dict:
+    """Return a dict with translated keys per a group of translations."""
     for translation in translations:
         try:
-            return {get_form_translation(lbl, translation): v for lbl, v in d.items()}
+            return {
+                get_form_translation(lbl, translation): v
+                for lbl, v in dictionary.items()
+            }
 
         except KeyError:
             continue
 
-    raise NoTranslationError("Key does not exist within any supplied dictionaries.")
+    raise NoTranslationError("Keys do not correspond to any supplied dictionaries.")

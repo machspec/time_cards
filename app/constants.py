@@ -23,12 +23,13 @@ LABEL_STYLE: dict = {
     "fg": FOREGROUND_COLOR,
 }
 
-# input fields
+# input fields for card quantities
 CARD_QUANTITY_FIELDS: tuple = (
     "Total Parts",
     "Parts Per Bucket",
 )
 
+# input fields for card details
 CARD_DETAIL_FIELDS: tuple = (
     "Job",
     "Assembly",
@@ -59,7 +60,7 @@ FORM_TRANSLATIONS: dict = {
     "Total Parts": "part_qty",
 }
 
-# dict that describes how BAQ display fields are stored as variables
+# dict that describes how column headers are stored as variables
 BAQ_TRANSLATIONS: dict = {
     "JobNum": "job_num",
     "Asm": "assembly",
@@ -80,3 +81,6 @@ BAQ_TRANSLATIONS: dict = {
 
 # pdf report details
 SHEET_SIZE: tuple[int] = (1548, 2003)
+
+# warning levels
+LARGE_PART_QUANTITY: int = 500

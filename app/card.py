@@ -9,8 +9,8 @@ import math
 class Card:
     """Contains information for a single card."""
 
-    card_num: str
     card_count: str
+    card_num: str
 
     assembly: str
     bkt_hrs: str
@@ -23,26 +23,8 @@ class Card:
     part_num: str
     pro_date: str
 
-    back_image: Image = None
     front_image: Image = None
-
-    # TODO: Jacob
-    def build_back_image(self):
-        """Put back images together."""
-        card_back = Image.open("./app/resources/card_back.jpg")
-
-        back_output = card_back.copy()
-
-        # place text on back image
-        self.place_text(back_output, self.job_num, (53, 6))
-        self.place_text(back_output, self.card_num, (357, 6))
-
-        self.place_text(back_output, self.part_num, (78, 43))
-        self.place_text(back_output, self.part_name, (78, 76))
-        self.place_text(back_output, self.pro_date, (125, 185))
-        self.place_text(back_output, self.job_qty, (103, 150))
-
-        self.back_image = back_output
+    back_image: Image = None
 
     def build_front_image(self):
         """Put front images together."""
@@ -73,7 +55,25 @@ class Card:
 
         self.front_image = front_output
 
-    def build_image(self):
+    def build_back_image(self):
+        """Put back images together."""
+        card_back = Image.open("./app/resources/card_back.jpg")
+
+        back_output = card_back.copy()
+
+        # place text on back image
+        self.place_text(back_output, self.job_num, (53, 6))
+        self.place_text(back_output, self.card_num, (357, 6))
+
+        self.place_text(back_output, self.part_num, (80, 43))
+        self.place_text(back_output, self.part_name, (80, 76))
+
+        self.place_text(back_output, self.job_qty, (104, 146))
+        self.place_text(back_output, self.pro_date, (120, 182))
+
+        self.back_image = back_output
+
+    def build_card(self):
         self.build_front_image()
         self.build_back_image()
 

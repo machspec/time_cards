@@ -1,76 +1,77 @@
 """Entry point for program."""
 
-import app
+from app import constants, core, helpers
 import tkinter as tk
 
 
 def main():
-    root = app.core.App("Time Card Generator", (554, 265))
-    root.configure(bg=app.constants.BACKGROUND_COLOR)
+    root = core.App("Time Card Generator", (554, 265))
+    root.configure(bg=constants.BACKGROUND_COLOR)
     root.iconbitmap("./time_cards.ico")
+    root.resizable(False, False)
 
     # define GUI elements
 
     # fields that tell the program how many parts there are and how many per bucket
-    card_quantity_entries = app.helpers.LabeledWidgetGroup(
-        root, **app.constants.BOX_STYLE
-    )
+    card_quantity_entries = helpers.LabeledWidgetGroup(root, **constants.BOX_STYLE)
     card_quantity_entries.add_similar_widgets(
-        app.constants.CARD_QUANTITY_FIELDS, tk.Entry, **app.constants.ENTRY_STYLE
+        constants.CARD_QUANTITY_FIELDS, tk.Entry, **constants.ENTRY_STYLE
     )
-    card_quantity_entries.build_frame(**app.constants.LABEL_STYLE)
+    card_quantity_entries.build_frame(**constants.LABEL_STYLE)
 
     # fields that tell the program the details each card should display
-    card_detail_entries = app.helpers.LabeledWidgetGroup(
-        root, **app.constants.BOX_STYLE
-    )
+    card_detail_entries = helpers.LabeledWidgetGroup(root, **constants.BOX_STYLE)
     card_detail_entries.add_similar_widgets(
-        app.constants.CARD_DETAIL_FIELDS, tk.Entry, **app.constants.ENTRY_STYLE
+        constants.CARD_DETAIL_FIELDS, tk.Entry, **constants.ENTRY_STYLE
     )
-    card_detail_entries.build_frame(**app.constants.LABEL_STYLE)
+    card_detail_entries.build_frame(**constants.LABEL_STYLE)
 
-    # entry for operations
-    frame_op_entry = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
+    # tk.Text entry for operations
+    frame_op_entry = tk.Frame(root, bg=constants.BACKGROUND_COLOR)
     lbl_ops_instructions = tk.Label(
         frame_op_entry,
         text="Enter operations separated by commas.",
-        **app.constants.LABEL_STYLE
+        **constants.LABEL_STYLE
     )
-    entry_ops = tk.Text(
-        frame_op_entry, width=40, height=11, **app.constants.ENTRY_STYLE
-    )
-    lbl_ops_instructions.grid()
-    entry_ops.grid()
+    text_ops = tk.Text(frame_op_entry, width=40, height=11, **constants.ENTRY_STYLE)
 
-    # frame for output buttons
-    btn_frame = tk.Frame(root, bg=app.constants.BACKGROUND_COLOR)
+    # frame for IO buttons
+    frame_io_buttons = tk.Frame(root, bg=constants.BACKGROUND_COLOR)
 
-    # button to create printable cards
-    btn_export_cards = tk.Button(btn_frame, text="Export Cards")
-    btn_export_cards.bind(
-        "<Button-1>",
-        lambda x: app.core.export_cards(
-            app.helpers.get_group_values(card_quantity_entries),
-            app.helpers.get_group_values(card_detail_entries),
-            entry_ops.get("1.0", tk.END),
-        ),
-    )
-
-    btn_import_data = tk.Button(btn_frame, text="Import Data")
+    # button to import data from a file
+    btn_import_data = tk.Button(frame_io_buttons, text="Import Data")
     btn_import_data.bind(
         "<Button-1>",
-        lambda x: app.core.import_data(
-            (card_quantity_entries, card_detail_entries), entry_ops
+        lambda _: core.import_data(
+            (card_quantity_entries, card_detail_entries), text_ops
         ),
     )
 
+    # button to create printable cards
+    btn_export_cards = tk.Button(frame_io_buttons, text="Export Cards")
+    btn_export_cards.bind(
+        "<Button-1>",
+        lambda _: core.export_cards(
+            helpers.get_group_values(card_quantity_entries),
+            helpers.get_group_values(card_detail_entries),
+            text_ops.get("1.0", tk.END),
+        ),
+    )
+
+    # draw GUI elements to the window
+
+    # IO buttons -> frame_io_buttons
     btn_import_data.grid(column=0, row=0)
     btn_export_cards.grid(column=1, row=0)
 
-    # draw GUI elements to the window
+    # operations textbox and instructions -> frame_op_entry
+    lbl_ops_instructions.grid()
+    text_ops.grid()
+
+    # all widgets -> root
     card_quantity_entries.grid(sticky=tk.EW)
     card_detail_entries.grid(sticky=tk.EW)
-    btn_frame.grid(row=0, column=1)
+    frame_io_buttons.grid(row=0, column=1)
     frame_op_entry.grid(row=1, column=1)
 
     root.mainloop()
