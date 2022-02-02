@@ -62,32 +62,26 @@ FORM_TRANSLATIONS: dict = {
 
 # dict that describes how column headers are stored as variables
 BAQ_TRANSLATIONS: dict = {
-    "JobNum": "job_num",
     "Asm": "assembly",
-    "Opr": "opr",
-    "Op Dtl Desc": "op_dtl",
     "Dept Desc": "dpt",
+    "JobNum": "job_num",
     "Part": "part_num",
-    "Part Desc": "part_name",
-    "WIP": "wip",
-    "TBR": "tbr",
-    "Start": "start_date",
-    "Due Date": "due_date",
-    "EstProdHours": "est_prod_hrs",
-    "EstSetHours": "est_set_hrs",
+    "Part Name": "part_name",
+    "PRO Date": "pro_date",
+    "ProdQty": "part_qty",
     "TotalEstHours": "total_hrs",
-    "Prod Qty": "part_qty",
 }
 
 # set of required columns
 REQUIRED_COLUMNS: set = {
-    "JobNum",
     "Asm",
     "Dept Desc",
+    "JobNum",
     "Part",
-    "Part Desc",
+    "Part Name",
+    "PRO Date",
+    "ProdQty",
     "TotalEstHours",
-    "Prod Qty",
 }
 
 # pdf report details
