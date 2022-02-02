@@ -1,58 +1,96 @@
 """Classes and functions for importing data."""
 
-from app.helpers import LabeledWidgetGroup
-from dataclasses import dataclass
+from app.constants import FORM_TRANSLATIONS, BAQ_TRANSLATIONS
+from app.helpers import LabeledWidgetGroup, translate_dict_key, translate_dict_keys
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 import pathlib
+import re
 import tkinter as tk
 
 
-@dataclass
 class FormValues:
     """Container for GUI form values."""
 
-    assembly: str
-    bkt_hrs: str
-    job_num: str
-    part_name: str
-    part_num: str
-    ops: list[str]
+    def __init__(
+        self,
+        assembly: str,
+        bkt_hrs: str,
+        job_num: str,
+        part_name: str,
+        part_num: str,
+        part_qty: str,
+        ops: list[str],
+        **_,  # discard unrecognized columns
+    ):
+        self.assembly = assembly
+        self.bkt_hrs = bkt_hrs
+        self.job_num = job_num
+        self.part_name = part_name
+        self.part_num = part_num
+        self.part_qty = part_qty
+        self.ops = ops
 
-    def fill_forms(self, widget_group: LabeledWidgetGroup) -> None:
-        """Fill tk.Entry type widgets."""
+    def fill_labeled_widget_group(self, widget_group: LabeledWidgetGroup) -> None:
+        """Fill a group of widgets contained in a `LabeledWidgetGroup`.
 
-        def set_entry_value(form_name: str, value: str):
+        parameters:
+        - widget_group <LabeledWidgetGroup>: widgets to be filled out
+        """
+
+        def set_entry_value(form: str, value: str):
             """Clear then set the value of (form) to (value)."""
-            widget_group.widgets[form_name].delete(0, tk.END)
-            widget_group.widgets[form_name].insert(0, value)
+            form.delete(0, tk.END)
+            form.insert(0, value)
 
-        set_entry_value("Assembly", self.assembly)
-        set_entry_value("BktHrs", self.bkt_hrs)
-        set_entry_value("Job", self.job_num)
-        set_entry_value("Name", self.part_name)
-        set_entry_value("Part#", self.part_num)
+        for label, widget in widget_group.widgets.items():
+            actual_key = self.__dict__.get(
+                translate_dict_key(label, (BAQ_TRANSLATIONS, FORM_TRANSLATIONS))
+            )
+
+            if actual_key is None:
+                continue
+
+            set_entry_value(widget, actual_key)
 
     def fill_text_entry(self, widget: tk.Text) -> None:
-        """Fill tk.Text type widgets."""
+        """Fill a tkinter `Text` widget."""
         widget.delete(1.0, tk.END)
         widget.insert(tk.END, ",".join(self.ops))
 
 
-def form_values_from_excel(file_path: pathlib.Path) -> FormValues:
+def form_values_from_excel(ws: Worksheet) -> FormValues:
     """Get values from an Excel sheet and output them as a FormValues object."""
-    wb = load_workbook(filename=file_path.absolute())
-    ws = wb.active
 
-    bkt_hrs = sum([i.value for i in ws["l"]][1:])
+    def cell_values(data: list) -> list[str]:
+        """Get cell values from row or column."""
+        return [i.value for i in data]
+
+    columns = list(ws.columns)
+    rows = list(ws.rows)
+
+    headers = cell_values(rows.pop(0))
+    first_row = cell_values(rows[0])
+
+    values = translate_dict_keys(
+        {k: v for k, v in zip(headers, first_row)},
+        (BAQ_TRANSLATIONS,),
+    )
+
+    bkt_hrs = sum(cell_values(columns[headers.index("TotalEstHours")][1:]))
+    ops = cell_values(columns[headers.index("Dept Desc")][1:])
+
+    # remove "-ing" suffix from operations (saves space)
+    ops = [re.sub("ing$", "", i.lower()) for i in ops]
 
     return FormValues(
-        assembly=ws["b2"].value,
-        bkt_hrs=str(bkt_hrs),
-        job_num=ws["a2"].value,
-        part_name=ws["g2"].value[: ws["g2"].value.find(",")]
-        if "," in ws["g2"].value
-        else ws["g2"].value,
-        part_num=ws["f2"].value,
-        ops=[i.value for i in ws["e"][1:]],
+        **values,
+        bkt_hrs=bkt_hrs,
+        ops=ops,
     )
+
+
+def load_excel(file_path: pathlib.Path) -> Worksheet:
+    wb = load_workbook(filename=file_path.absolute())
+    return wb.active
