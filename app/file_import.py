@@ -5,7 +5,6 @@ from app.helpers import LabeledWidgetGroup, translate_dict_key, translate_dict_k
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
-import app.constants
 import pathlib
 import tkinter as tk
 
