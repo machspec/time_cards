@@ -152,9 +152,9 @@ def create_card_data(
 def export_cards(quantities: dict[str, str], details: dict[str, str], ops: str):
     """Run full card-creation process."""
 
-    # show an error if required fields left blank
-    if not quantities["Parts Per Bucket"]:
-        messagebox.showerror("Required Field", '"Parts Per Bucket" cannot be empty.')
+    # show an error if fields left blank
+    if not all(quantities.values()) or not all(details.values()):
+        messagebox.showerror("Required Field(s)", "Fields cannot be empty.")
         return
 
     # show a warning for large part quantities
