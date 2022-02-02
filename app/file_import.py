@@ -2,6 +2,7 @@
 
 from app.constants import FORM_TRANSLATIONS, BAQ_TRANSLATIONS, REQUIRED_COLUMNS
 from app.helpers import LabeledWidgetGroup, translate_dict_key, translate_dict_keys
+from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from tkinter import messagebox
@@ -22,6 +23,7 @@ class FormValues:
         part_name: str,
         part_num: str,
         part_qty: str,
+        pro_date: str,
         ops: list[str],
         **_,  # discard unrecognized columns
     ):
@@ -31,6 +33,7 @@ class FormValues:
         self.part_name = part_name
         self.part_num = part_num
         self.part_qty = part_qty
+        self.pro_date = datetime.strftime(pro_date, "%m/%d/%Y")
         self.ops = ops
 
     def fill_labeled_widget_group(self, widget_group: LabeledWidgetGroup) -> None:
@@ -85,14 +88,15 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
 
         return
 
-    first_row = cell_values(rows[0])
+    values = {k: v for k, v in zip(headers, cell_values(rows[0]))}
 
-    values = translate_dict_keys(
-        {k: v for k, v in zip(headers, first_row)},
-        (BAQ_TRANSLATIONS,),
-    )
+    # filter out unused columns
+    values = dict(filter(lambda x: x[0] in REQUIRED_COLUMNS, values.items()))
 
-    bkt_hrs = sum(cell_values(columns[headers.index("TotalEstHours")]))
+    # translate keys
+    values = translate_dict_keys(values, (BAQ_TRANSLATIONS,))
+
+    bkt_hrs = int(sum(cell_values(columns[headers.index("TotalEstHours")])))
     ops = cell_values(columns[headers.index("Dept Desc")])
 
     # remove "-ing" suffix from operations (saves space)
