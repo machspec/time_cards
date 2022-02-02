@@ -79,6 +79,17 @@ BAQ_TRANSLATIONS: dict = {
     "Prod Qty": "part_qty",
 }
 
+# set of required columns
+REQUIRED_COLUMNS: set = {
+    "JobNum",
+    "Asm",
+    "Dept Desc",
+    "Part",
+    "Part Desc",
+    "TotalEstHours",
+    "Prod Qty",
+}
+
 # pdf report details
 SHEET_SIZE: tuple[int] = (1548, 2003)
 

@@ -1,9 +1,10 @@
 """Classes and functions for importing data."""
 
-from app.constants import FORM_TRANSLATIONS, BAQ_TRANSLATIONS
+from app.constants import FORM_TRANSLATIONS, BAQ_TRANSLATIONS, REQUIRED_COLUMNS
 from app.helpers import LabeledWidgetGroup, translate_dict_key, translate_dict_keys
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
+from tkinter import messagebox
 
 import pathlib
 import re
@@ -67,10 +68,23 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
         """Get cell values from row or column."""
         return [i.value for i in data]
 
-    columns = list(ws.columns)
-    rows = list(ws.rows)
+    # get rows and columns, discarding empty rows
+    rows = list(filter(lambda i: i[0].value is not None, ws.rows))
+    columns = list(col[1 : len(rows)] for col in ws.columns)
 
     headers = cell_values(rows.pop(0))
+
+    # display error if required columns are missing/invalid
+    if not all((i in headers for i in REQUIRED_COLUMNS)):
+        messagebox.showerror(
+            "Missing/Invalid Columns",
+            "This file has missing or incorrectly named columns."
+            " Please make sure the following columns are present:\n\n- "
+            + ",\n- ".join(sorted(REQUIRED_COLUMNS)),
+        )
+
+        return
+
     first_row = cell_values(rows[0])
 
     values = translate_dict_keys(
@@ -78,8 +92,8 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
         (BAQ_TRANSLATIONS,),
     )
 
-    bkt_hrs = sum(cell_values(columns[headers.index("TotalEstHours")][1:]))
-    ops = cell_values(columns[headers.index("Dept Desc")][1:])
+    bkt_hrs = sum(cell_values(columns[headers.index("TotalEstHours")]))
+    ops = cell_values(columns[headers.index("Dept Desc")])
 
     # remove "-ing" suffix from operations (saves space)
     ops = [re.sub("ing$", "", i.lower()) for i in ops]
