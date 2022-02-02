@@ -58,7 +58,10 @@ def main():
 
     btn_import_data = tk.Button(btn_frame, text="Import Data")
     btn_import_data.bind(
-        "<Button-1>", lambda x: app.core.import_data(card_detail_entries, entry_ops)
+        "<Button-1>",
+        lambda x: app.core.import_data(
+            (card_quantity_entries, card_detail_entries), entry_ops
+        ),
     )
 
     btn_import_data.grid(column=0, row=0)

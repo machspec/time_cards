@@ -137,8 +137,8 @@ def create_card_data(
     quantities: dict[str, str], details: dict[str, str], ops: str
 ) -> card.CardData:
     """Create a new card.CardData object from form values."""
-    qtys: dict = translate_dict_keys(quantities)
-    dtls: dict = translate_dict_keys(details)
+    qtys: dict = helpers.translate_dict_keys(quantities, (constants.FORM_TRANSLATIONS,))
+    dtls: dict = helpers.translate_dict_keys(details, (constants.FORM_TRANSLATIONS,))
     ops: list = [i.strip().upper() for i in ops.split(",")]
 
     return card.CardData(**qtys, **dtls, ops=ops)
@@ -197,12 +197,9 @@ def generate_pdf(filename: str, image_directory: pathlib.Path):
     return output_filename
 
 
-def get_form_translation(label: str) -> str:
-    """Get variable name from constants.FORM_TRANSLATIONS constant, given label text."""
-    return constants.FORM_TRANSLATIONS[label]
-
-
-def import_data(forms: helpers.LabeledWidgetGroup, text: tk.Text) -> None:
+def import_data(
+    widget_groups: tuple[helpers.LabeledWidgetGroup], text: tk.Text
+) -> None:
     """Prompts the user for an Excel file (*.xlsx), then fills GUI forms with its contents."""
     file_path = pathlib.Path(
         tkinter.filedialog.askopenfilename(
@@ -215,15 +212,15 @@ def import_data(forms: helpers.LabeledWidgetGroup, text: tk.Text) -> None:
     )
 
     if file_path.suffix == ".xlsx":
-        form_values = file_import.form_values_from_excel(file_path)
-        form_values.fill_forms(forms)
+        ws = file_import.load_excel(file_path)
+
+        form_values = file_import.form_values_from_excel(ws)
+
+        for group in widget_groups:
+            form_values.fill_forms(group)
+
         form_values.fill_text_entry(text)
 
 
 def open_in_explorer(path: pathlib.Path):
     subprocess.Popen(f'explorer "{path}"')
-
-
-def translate_dict_keys(d: dict[str, str]) -> dict:
-    """Return a dict with translated keys per constants.FORM_TRANSLATIONS constant."""
-    return {get_form_translation(lbl): v for lbl, v in d.items()}

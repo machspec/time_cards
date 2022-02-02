@@ -7,6 +7,10 @@ import tkinter as tk
 from abc import ABC, abstractmethod
 
 
+class NoTranslationError(BaseException):
+    ...
+
+
 class WidgetGroup(ABC, tk.Frame):
     """Group of related widgets."""
 
@@ -67,6 +71,35 @@ class LabeledWidgetGroup(WidgetGroup):
             widget.grid(row=index, column=1, padx=5, pady=5, sticky=tk.E)
 
 
+def get_form_translation(label: str, translations: dict) -> str:
+    """Get variable name from a translations dict, given label text."""
+    return translations[label]
+
+
 def get_group_values(group: WidgetGroup) -> dict[str, str]:
     """Return dictionary of values from WidgetGroup."""
     return {label: value.get() for label, value in group.widgets.items()}
+
+
+def translate_dict_key(key: str, translations: tuple[dict]) -> str:
+    """Return a translated string from a dictionary of translations."""
+    for translation in translations:
+        try:
+            return get_form_translation(key, translation)
+
+        except KeyError:
+            continue
+
+    raise NoTranslationError("Key does not exist within any supplied dictionaries.")
+
+
+def translate_dict_keys(d: dict[str, str], translations: tuple[dict]) -> dict:
+    """Return a dict with translated keys per a translation dictionary."""
+    for translation in translations:
+        try:
+            return {get_form_translation(lbl, translation): v for lbl, v in d.items()}
+
+        except KeyError:
+            continue
+
+    raise NoTranslationError("Key does not exist within any supplied dictionaries.")
