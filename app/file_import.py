@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 import pathlib
+import re
 import tkinter as tk
 
 
@@ -79,6 +80,9 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
 
     bkt_hrs = sum(cell_values(columns[headers.index("TotalEstHours")][1:]))
     ops = cell_values(columns[headers.index("Dept Desc")][1:])
+
+    # remove "-ing" suffix from operations (saves space)
+    ops = [re.sub("ing$", "", i.lower()) for i in ops]
 
     return FormValues(
         **values,
