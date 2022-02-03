@@ -19,7 +19,7 @@ def show_help() -> None:
         "work for any reason. If the program fails to input data, "
         "be sure to contact IT immediately with a detailed description "
         "of the problem.\n\n"
-        'Once all fields are entered correctly, click "Export Cards.\n\n'
+        'Once all fields are entered correctly, click "Export Cards."\n\n'
         'IMPORTANT: Use the BAQ "JF_Time_Cards" to input data.',
     )
 
