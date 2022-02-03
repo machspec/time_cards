@@ -83,7 +83,7 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
             "Missing/Invalid Columns",
             "This file has missing or incorrectly named columns."
             " Please make sure the following columns are present:\n\n- "
-            + ",\n- ".join(sorted(REQUIRED_COLUMNS)),
+            + "\n- ".join(sorted(REQUIRED_COLUMNS)),
         )
 
         return
