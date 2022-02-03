@@ -1,14 +1,54 @@
 """Entry point for program."""
 
-from app import constants, core, helpers
+from app import constants, core, helpers, version
+from tkinter import messagebox
+
 import tkinter as tk
 
 
+# TODO: write full instructions.
+def show_help() -> None:
+    """Displays a help message."""
+    messagebox.showinfo(
+        "Time Card Generator (Help)",
+        "Import data from a BAQ in order to fill out the fields "
+        "for an assembly. For outputs with multiple assemblies, "
+        "you will have to cut them out and input them one-by-one "
+        "(support for multiple assemblies is being developed).\n\n"
+        "You can input data manually if the BAQ input doesn't "
+        "work for any reason. If the program fails to input data, "
+        "be sure to contact IT immediately with a detailed description "
+        "of the problem.\n\n"
+        'Once all fields are entered correctly, click "Export Cards.\n\n'
+        'IMPORTANT: Use the BAQ "JF_Time_Cards" to input data.',
+    )
+
+
 def main():
-    root = core.App("Time Card Generator", (554, 265))
+    # check for updates on open
+    if version.check_for_update():
+        messagebox.showinfo(
+            "Update Available",
+            "There is a new version available!\n" "Please go to About > Update.",
+        )
+
+    root = core.App("Time Card Generator", constants.GUI_SIZE)
     root.configure(bg=constants.BACKGROUND_COLOR)
     root.iconbitmap("./time_cards.ico")
     root.resizable(False, False)
+
+    # menubar
+    menu_bar = tk.Menu(root)
+
+    menu_about = tk.Menu(menu_bar, tearoff=0)
+    menu_about.add_command(label=f"{constants.APP_VERSION}", state=tk.DISABLED)
+    menu_about.add_separator()
+    menu_about.add_command(label="Help", command=show_help)
+    menu_about.add_command(label="Update", command=version.open_releases)
+
+    menu_bar.add_cascade(menu=menu_about, label="About")
+
+    root.configure(menu=menu_bar)
 
     # define GUI elements
 
@@ -31,7 +71,7 @@ def main():
     lbl_ops_instructions = tk.Label(
         frame_op_entry,
         text="Enter operations separated by commas.",
-        **constants.LABEL_STYLE
+        **constants.LABEL_STYLE,
     )
     text_ops = tk.Text(frame_op_entry, width=40, height=11, **constants.ENTRY_STYLE)
 
@@ -66,7 +106,7 @@ def main():
 
     # operations textbox and instructions -> frame_op_entry
     lbl_ops_instructions.grid()
-    text_ops.grid()
+    text_ops.grid(pady=(4, 0))
 
     # all widgets -> root
     card_quantity_entries.grid(sticky=tk.EW)

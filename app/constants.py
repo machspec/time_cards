@@ -1,6 +1,13 @@
 from tkinter import SUNKEN
 from PIL import ImageFont
 
+
+# app information
+APP_VERSION: str = "v0.3.0"
+GITHUB_RELEASES_URL: str = "https://github.com/machspec/time_cards/releases"
+GITHUB_API_URL: str = "https://api.github.com/repos/machspec/time_cards/releases"
+GUI_SIZE: tuple = (554, 285)
+
 # program color palette
 BACKGROUND_COLOR: str = "#333333"
 BACKGROUND_COLOR_ENTRY: str = "#555555"
