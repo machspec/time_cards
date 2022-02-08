@@ -92,7 +92,7 @@ REQUIRED_COLUMNS: set = {
 }
 
 # pdf report details
-SHEET_SIZE: tuple[int] = (1548, 2003)
+SHEET_SIZE: tuple[int] = (1568, 2025)
 
 # warning levels
 LARGE_PART_QUANTITY: int = 500
