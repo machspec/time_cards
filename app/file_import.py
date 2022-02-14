@@ -1,7 +1,8 @@
 """Classes and functions for importing data."""
 
-from app.constants import FORM_TRANSLATIONS, BAQ_TRANSLATIONS, REQUIRED_COLUMNS
+from app.constants import BAQ_TRANSLATIONS, FORM_TRANSLATIONS, REQUIRED_COLUMNS
 from app.helpers import LabeledWidgetGroup, translate_dict_key, translate_dict_keys
+from app.ops import OP_TRANSLATIONS
 from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
@@ -71,6 +72,16 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
         """Get cell values from row or column."""
         return [i.value for i in data]
 
+    def translate_op(op: str) -> str:
+        """Translate and shorten an operation description.
+
+        If no translation is found, returns the original input.
+        """
+        pattern = "^[\d\.]+"
+        result = re.match(pattern, op)
+
+        return OP_TRANSLATIONS.get(result.group()) or op
+
     # get rows and columns, discarding empty rows
     rows = list(filter(lambda i: i[0].value is not None, ws.rows))
     columns = list(col[1 : len(rows)] for col in ws.columns)
@@ -97,7 +108,10 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
     values = translate_dict_keys(values, (BAQ_TRANSLATIONS,))
 
     bkt_hrs = int(sum(cell_values(columns[headers.index("TotalEstHours")])))
-    ops = cell_values(columns[headers.index("Dept Desc")])
+    ops = cell_values(columns[headers.index("Op Dtl Desc")])
+
+    # translate operation names where possible
+    ops = [translate_op(i) for i in ops]
 
     # remove "-ing" suffix from operations (saves space)
     ops = [re.sub("ing$", "", i.lower()) for i in ops]

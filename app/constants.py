@@ -70,8 +70,8 @@ FORM_TRANSLATIONS: dict = {
 # dict that describes how column headers are stored as variables
 BAQ_TRANSLATIONS: dict = {
     "Asm": "assembly",
-    "Dept Desc": "dpt",
     "JobNum": "job_num",
+    "Op Dtl Desc": "dpt",
     "Part": "part_num",
     "Part Name": "part_name",
     "PRO Date": "pro_date",
@@ -82,8 +82,8 @@ BAQ_TRANSLATIONS: dict = {
 # set of required columns
 REQUIRED_COLUMNS: set = {
     "Asm",
-    "Dept Desc",
     "JobNum",
+    "Op Dtl Desc",
     "Part",
     "Part Name",
     "PRO Date",
@@ -92,7 +92,7 @@ REQUIRED_COLUMNS: set = {
 }
 
 # pdf report details
-SHEET_SIZE: tuple[int] = (1568, 2025)
+SHEET_SIZE: tuple[int] = (1599, 2065)
 
 # warning levels
 LARGE_PART_QUANTITY: int = 500

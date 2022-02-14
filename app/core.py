@@ -100,7 +100,7 @@ def add_uniform_margin(
             margin_params,
             s,
             (
-                (final_page_size[0] - s.size[0]) // 2,
+                (final_page_size[0] - s.size[0]) // 2 + 10,
                 (final_page_size[1] - s.size[1]) // 2,
             ),
         )
