@@ -66,7 +66,8 @@ class Card:
         self.place_text(back_output, self.card_num, (357, 6))
 
         self.place_text(back_output, self.part_num, (80, 43))
-        self.place_text(back_output, self.part_name, (80, 76))
+        self.place_text(back_output, self.part_name, (82, 76))
+        self.place_text(back_output, self.assembly, (67, 112))
 
         self.place_text(back_output, self.job_qty, (104, 146))
         self.place_text(back_output, self.pro_date, (120, 182))
