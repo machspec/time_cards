@@ -2,6 +2,8 @@
 
 This program provides data entry forms and automatic formatting for printing out time cards.
 
+For instructions, please see the [manual](./manual.pdf).
+
 ### Current GUI:
 ![Current GUI](../media/gui.jpg)
 
