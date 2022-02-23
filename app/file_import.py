@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from tkinter import messagebox
 
+import math
 import pathlib
 import re
 import tkinter as tk
@@ -20,6 +21,8 @@ class FormValues:
         self,
         assembly: str,
         bkt_hrs: str,
+        bkt_qty: str,
+        exp_vel: str,
         job_num: str,
         part_name: str,
         part_num: str,
@@ -30,6 +33,8 @@ class FormValues:
     ):
         self.assembly = assembly
         self.bkt_hrs = bkt_hrs
+        self.bkt_qty = bkt_qty
+        self.exp_vel = exp_vel
         self.job_num = job_num
         self.part_name = part_name
         self.part_num = part_num
@@ -65,30 +70,21 @@ class FormValues:
         widget.insert(tk.END, ",".join(self.ops))
 
 
+def cell_values(data: list) -> list[str]:
+    """Get cell values from row or column."""
+    return [i.value for i in data]
+
+
 def form_values_from_excel(ws: Worksheet) -> FormValues:
     """Get values from an Excel sheet and output them as a FormValues object."""
 
-    def cell_values(data: list) -> list[str]:
-        """Get cell values from row or column."""
-        return [i.value for i in data]
-
-    def translate_op(op: str) -> str:
-        """Translate and shorten an operation description.
-
-        If no translation is found, returns the original input.
-        """
-        pattern = "^[\d\.]+"
-        result = re.match(pattern, op)
-
-        return OP_TRANSLATIONS.get(result.group()) or op
-
-    # get rows and columns, discarding empty rows
+    # get rows and columns, discard empty rows
     rows = list(filter(lambda i: i[0].value is not None, ws.rows))
     columns = list(col[1 : len(rows)] for col in ws.columns)
 
     headers = cell_values(rows.pop(0))
 
-    # display error if required columns are missing/invalid
+    # display error if required columns are missing
     if not all((i in headers for i in REQUIRED_COLUMNS)):
         messagebox.showerror(
             "Missing/Invalid Columns",
@@ -101,16 +97,19 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
 
     values = {k: v for k, v in zip(headers, cell_values(rows[0]))}
 
-    # filter out unused columns
+    # discard unused columns and translate remaining
     values = dict(filter(lambda x: x[0] in REQUIRED_COLUMNS, values.items()))
-
-    # translate keys
     values = translate_dict_keys(values, (BAQ_TRANSLATIONS,))
 
-    bkt_hrs = int(sum(cell_values(columns[headers.index("TotalEstHours")])))
-    ops = cell_values(columns[headers.index("Op Dtl Desc")])
+    # column-specific (hard-coded) values
 
-    # translate operation names where possible
+    bkt_hrs = int(sum(cell_values(columns[headers.index("TotalEstHours")])))
+    total_hrs = sum(cell_values(columns[headers.index("HrsPerPiece")]))
+
+    bkt_qty = math.floor(25 / total_hrs)
+    exp_vel = math.ceil(bkt_hrs / 10.2)
+
+    ops = cell_values(columns[headers.index("Op Dtl Desc")])
     ops = [translate_op(i) for i in ops]
 
     # remove "-ing" suffix from operations (saves space)
@@ -119,6 +118,8 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
     return FormValues(
         **values,
         bkt_hrs=bkt_hrs,
+        bkt_qty=bkt_qty,
+        exp_vel=exp_vel,
         ops=ops,
     )
 
@@ -126,3 +127,14 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
 def load_excel(file_path: pathlib.Path) -> Worksheet:
     wb = load_workbook(filename=file_path.absolute())
     return wb.active
+
+
+def translate_op(op: str) -> str:
+    """Translate and shorten an operation description.
+
+    If no translation is found, returns the original input.
+    """
+    pattern = "^[\d\.]+"
+    result = re.match(pattern, op)
+
+    return OP_TRANSLATIONS.get(result.group()) or op

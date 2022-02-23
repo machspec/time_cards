@@ -70,6 +70,7 @@ FORM_TRANSLATIONS: dict = {
 # dict that describes how column headers are stored as variables
 BAQ_TRANSLATIONS: dict = {
     "Asm": "assembly",
+    "HrsPerPiece": "hrs_per_piece",
     "JobNum": "job_num",
     "Op Dtl Desc": "dpt",
     "Part": "part_num",
@@ -82,6 +83,7 @@ BAQ_TRANSLATIONS: dict = {
 # set of required columns
 REQUIRED_COLUMNS: set = {
     "Asm",
+    "HrsPerPiece",
     "JobNum",
     "Op Dtl Desc",
     "Part",
