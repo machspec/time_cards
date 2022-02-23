@@ -24,13 +24,18 @@ def show_help() -> None:
     )
 
 
-def main():
-    # check for updates on open
-    if version.check_for_update():
+def check_for_updates() -> None:
+    update_available = version.update_available()
+
+    if update_available:
         messagebox.showinfo(
             "Update Available",
             "There is a new version available!\n" "Please go to About > Update.",
         )
+
+
+def main():
+    check_for_updates()
 
     root = core.App("Time Card Generator", constants.GUI_SIZE)
     root.configure(bg=constants.BACKGROUND_COLOR)

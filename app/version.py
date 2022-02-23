@@ -6,7 +6,7 @@ import requests
 import webbrowser
 
 
-def check_for_update() -> bool:
+def update_available() -> bool:
     """Check if the program version matches that of the latest release."""
     path = GITHUB_API_URL
     response = requests.get(path + "/latest")
