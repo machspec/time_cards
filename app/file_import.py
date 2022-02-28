@@ -103,10 +103,10 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
 
     # column-specific (hard-coded) values
 
-    bkt_hrs = int(sum(cell_values(columns[headers.index("TotalEstHours")])))
+    bkt_hrs = round(sum(cell_values(columns[headers.index("TotalEstHours")])) / values["part_qty"], 2)
     total_hrs = sum(cell_values(columns[headers.index("HrsPerPiece")]))
 
-    bkt_qty = math.floor(25 / total_hrs)
+    bkt_qty = max(1, math.floor(25 / total_hrs))
     exp_vel = math.ceil(bkt_hrs / 10.2)
 
     ops = cell_values(columns[headers.index("Op Dtl Desc")])
