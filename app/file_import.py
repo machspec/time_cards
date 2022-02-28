@@ -101,8 +101,6 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
     values = dict(filter(lambda x: x[0] in REQUIRED_COLUMNS, values.items()))
     values = translate_dict_keys(values, (BAQ_TRANSLATIONS,))
 
-    print(values.keys())
-
     # column-specific (hard-coded) values
 
     bkt_hrs = round(sum(cell_values(columns[headers.index("TotalEstHours")])) / values["part_qty"], 2)
