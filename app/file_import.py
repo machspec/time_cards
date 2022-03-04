@@ -104,7 +104,7 @@ def form_values_from_excel(ws: Worksheet) -> FormValues:
     # column-specific (hard-coded) values
 
     total_hrs = sum(cell_values(columns[headers.index("HrsPerPiece")]))
-    bkt_qty = max(1, math.floor(25 / total_hrs))
+    bkt_qty = min(values["part_qty"], max(1, math.floor(25 / total_hrs)))
     bkt_hrs = round(
         sum(cell_values(columns[headers.index("TotalEstHours")])) / values["part_qty"], 2
     ) * bkt_qty
